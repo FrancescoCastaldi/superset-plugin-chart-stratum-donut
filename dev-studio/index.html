@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Donut Compare - dev studio</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: #f5f6f8; color: #1f2933; }
+      body.dark { background: #14171c; color: #e6e8eb; }
+      .bar { display: flex; gap: 12px; align-items: center; padding: 8px 12px; flex-wrap: wrap; font-size: 13px; }
+      .stage { margin: 8px 12px; border: 1px solid #d0d5dd; border-radius: 6px; background: #fff; position: relative; }
+      body.dark .stage { background: #1d2127; border-color: #39414d; }
+      table { border-collapse: collapse; font-size: 12px; margin: 8px 12px; }
+      td, th { border-bottom: 1px solid #d0d5dd; padding: 3px 8px; text-align: right; }
+      td:first-child, th:first-child { text-align: left; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

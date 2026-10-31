@@ -1,0 +1,5 @@
+node_modules/
+dist/
+*.log
+dev-studio/node_modules/
+dev-studio/dist/
