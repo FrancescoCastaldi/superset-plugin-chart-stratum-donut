@@ -198,3 +198,18 @@ describe('rows', () => {
     expect(isTruncated(undefined, 100)).toBe(false);
   });
 });
+
+describe('colori', () => {
+  test('fette adiacenti hanno colori diversi, anche con chiavi che collidono', () => {
+    const m = buildModel({
+      mode: 'column',
+      ref: rows([['boy', 30], ['girl', 20], ['x', 10]]),
+      cmp: null,
+      colorFor: (key, index) => ['#111', '#222', '#333'][index % 3] + key.length * 0,
+      other: { mode: 'none' },
+    });
+    const colors = m.slices.map(s => s.color.slice(0, 4));
+    expect(new Set(colors).size).toBe(3);
+  });
+});
+

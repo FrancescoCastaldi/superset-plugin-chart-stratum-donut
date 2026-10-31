@@ -31,7 +31,7 @@ export interface BuildModelInput {
   other?: OtherOptions;
   sort?: SliceSort;
   hideZero?: boolean;
-  colorFor: (key: string) => string;
+  colorFor: (key: string, index: number) => string;
 }
 
 export interface SliceModel extends SliceDatum {
@@ -102,7 +102,7 @@ export function buildModel(input: BuildModelInput): DonutModel {
 
   let hiddenZeroCount = 0;
   const slices: SliceModel[] = [];
-  merged.slices.forEach(s => {
+  merged.slices.forEach((s, index) => {
     const isZeroRow = !s.isOther && s.unknown === 'none' && s.refValue === 0 && (s.cmpValue ?? 0) === 0;
     if (input.hideZero && isZeroRow) {
       hiddenZeroCount += 1;
@@ -110,7 +110,7 @@ export function buildModel(input: BuildModelInput): DonutModel {
     }
     const c = cfg[s.key] ?? {};
     const polarity: Polarity = c.polarity && c.polarity !== 'inherit' ? c.polarity : defaultPolarity;
-    const color = c.color || (s.isOther ? OTHER_COLOR : input.colorFor(s.key));
+    const color = c.color || (s.isOther ? OTHER_COLOR : input.colorFor(s.key, index));
     slices.push({ ...s, polarity, sentiment: getTrendPolarity(s.trend, polarity), color });
   });
 
