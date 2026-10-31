@@ -125,6 +125,14 @@ const config: ControlPanelConfig = {
             },
           },
         ],
+        [
+          {
+            name: 'emit_filter',
+            config: checkbox('Enable cross-filtering', true, {
+              description: t('Clicking a slice filters the other charts on the dashboard.'),
+            }),
+          },
+        ],
       ],
     },
     {

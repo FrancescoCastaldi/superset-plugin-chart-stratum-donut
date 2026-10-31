@@ -8,7 +8,7 @@ const names = () => controls().map((c: any) => c?.name ?? c).filter(Boolean);
 
 describe('control panel', () => {
   test('every plugin-specific control has the dc_ prefix (or is a standard one)', () => {
-    const standard = new Set(['metric', 'metrics', 'groupby', 'adhoc_filters', 'row_limit', 'color_scheme', 'number_format']);
+    const standard = new Set(['metric', 'metrics', 'groupby', 'adhoc_filters', 'row_limit', 'color_scheme', 'number_format', 'emit_filter']);
     names().forEach((n: string) => {
       if (!standard.has(n)) expect(n.startsWith('dc_')).toBe(true);
     });

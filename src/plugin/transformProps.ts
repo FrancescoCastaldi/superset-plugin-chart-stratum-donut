@@ -167,7 +167,7 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
     interaction: {
       column: mode === 'column' && groupby ? groupby : null,
       selectedKeys: ((chartProps as any).filterState?.selectedValues ?? []) as string[],
-      emit: Boolean((chartProps as any).emitCrossFilters),
+      emit: fd.emit_filter !== false,
       setDataMask: (chartProps as any).setDataMask,
       onContextMenu: (chartProps as any).onContextMenu,
     },
