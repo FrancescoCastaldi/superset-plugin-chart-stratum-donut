@@ -5,7 +5,7 @@ export type CenterContent = 'ref_total_delta' | 'ref_total' | 'none';
 export type LegendColumn = 'value' | 'share' | 'delta';
 export type TooltipItem = 'values' | 'shares' | 'delta_abs' | 'delta_pct' | 'delta_pts';
 
-/** Impostazioni visive del donut, lette dal pannello Customize. */
+/** Visual settings of the donut, read from the Customize panel. */
 export interface OptionStyle {
   outerRadius: number;
   ringWidth: number;
@@ -26,7 +26,7 @@ export interface OptionStyle {
   legendPosition: 'right' | 'bottom';
   legendColumns: LegendColumn[];
   defaultPolarity: 'higher_is_better' | 'lower_is_better' | 'neutral';
-  /** Colori dal tema: testo ed etichette, sfondo per i bordi delle fette. */
+  /** Theme colors: text and labels, background for the slice borders. */
   textColor: string;
   borderColor: string;
 }
@@ -36,7 +36,7 @@ const num = (v: unknown, fallback: number): number => {
   return Number.isFinite(n) ? n : fallback;
 };
 
-/** Legge le impostazioni dal formData, con i valori predefiniti del pannello. */
+/** Reads the settings from formData, with the panel's default values. */
 export function readStyle(fd: Record<string, any>): OptionStyle {
   return {
     outerRadius: num(fd.dc_outer_radius, 70),
@@ -50,7 +50,7 @@ export function readStyle(fd: Record<string, any>): OptionStyle {
     labelPosition: fd.dc_label_position ?? 'outside',
     labelMinShare: num(fd.dc_label_min_share, 3),
     centerContent: fd.dc_center_content ?? 'ref_total_delta',
-    centerCaption: fd.dc_center_caption || 'Totale',
+    centerCaption: fd.dc_center_caption || 'Total',
     tooltipItems: Array.isArray(fd.dc_tooltip_items)
       ? fd.dc_tooltip_items
       : ['values', 'shares', 'delta_pct', 'delta_pts'],
@@ -65,7 +65,7 @@ export function readStyle(fd: Record<string, any>): OptionStyle {
   };
 }
 
-/** Applica i colori del tema di Superset (colorText, colorBgContainer), se presenti. */
+/** Applies the Superset theme colors (colorText, colorBgContainer), when present. */
 export function applyTheme(style: OptionStyle, theme: Record<string, any> | undefined | null): OptionStyle {
   return {
     ...style,

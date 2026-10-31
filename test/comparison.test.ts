@@ -2,8 +2,8 @@ import { relativeToShift, resolveComparison } from '../src/utils/comparison';
 
 const base = { dc_compare_source: 'auto', dc_compare_preset: 'previous_period' };
 
-describe('resolveComparison: filtro dashboard PeriodCompare', () => {
-  test('intervallo esplicito dal filtro: confronto come range', () => {
+describe('resolveComparison: PeriodCompare dashboard filter', () => {
+  test('explicit range from the filter: comparison as a range', () => {
     const plan = resolveComparison({
       ...base,
       extra_form_data: { time_range: '2026-10-01 : 2026-11-01', time_compare: ['2025-10-01 : 2025-11-01'], comparison_type: 'difference' },
@@ -16,17 +16,17 @@ describe('resolveComparison: filtro dashboard PeriodCompare', () => {
     });
   });
 
-  test('time_compare nativo come shift', () => {
+  test('native time_compare as a shift', () => {
     const plan = resolveComparison({ ...base, extra_form_data: { time_range: '2026-10-01 : 2026-11-01', time_compare: ['1 year ago'] } });
     expect(plan).toMatchObject({ active: true, source: 'dashboard', window: { kind: 'shift', shift: '1 year ago' } });
   });
 
-  test('shift senza riferimento limitato: non attivo', () => {
+  test('shift without a bounded reference: not active', () => {
     const plan = resolveComparison({ ...base, extra_form_data: { time_range: 'No filter', time_compare: ['1 year ago'] } });
     expect(plan).toEqual({ active: false, source: 'none', reason: 'no_reference_range' });
   });
 
-  test('source = chart ignora il filtro dashboard', () => {
+  test('source = chart ignores the dashboard filter', () => {
     const plan = resolveComparison({
       ...base,
       dc_compare_source: 'chart',
@@ -36,19 +36,19 @@ describe('resolveComparison: filtro dashboard PeriodCompare', () => {
     expect(plan).toMatchObject({ active: true, source: 'chart', window: { kind: 'shift', shift: '1 year ago' } });
   });
 
-  test('source = dashboard senza time_compare: non attivo', () => {
+  test('source = dashboard without time_compare: not active', () => {
     const plan = resolveComparison({ ...base, dc_compare_source: 'dashboard', extra_form_data: { time_range: '2026-10-01 : 2026-11-01' } });
     expect(plan).toEqual({ active: false, source: 'none', reason: 'no_dashboard_comparison' });
   });
 
-  test('source = none: disattivato anche se il filtro ha un confronto', () => {
+  test('source = none: disabled even if the filter has a comparison', () => {
     const plan = resolveComparison({ ...base, dc_compare_source: 'none', extra_form_data: { time_range: '2026-10-01 : 2026-11-01', time_compare: ['1 year ago'] } });
     expect(plan).toEqual({ active: false, source: 'none', reason: 'disabled' });
   });
 });
 
-describe('resolveComparison: preset del chart', () => {
-  test('periodo precedente di un mese esplicito calcolato nel browser', () => {
+describe('resolveComparison: chart preset', () => {
+  test('previous period of an explicit month, computed in the browser', () => {
     const plan = resolveComparison({ ...base, extra_form_data: { time_range: '2026-10-01 : 2026-11-01' } });
     expect(plan).toEqual({
       active: true,
@@ -69,21 +69,21 @@ describe('resolveComparison: preset del chart', () => {
     expect(plan).toMatchObject({ active: true, window: { kind: 'shift', shift } });
   });
 
-  test('riferimento relativo: "Last month" diventa uno shift', () => {
+  test('relative reference: "Last month" becomes a shift', () => {
     const plan = resolveComparison({ ...base, extra_form_data: { time_range: 'Last month' } });
     expect(plan).toMatchObject({ active: true, window: { kind: 'shift', shift: '1 month ago' } });
   });
 
-  test('riferimento relativo non mappabile', () => {
+  test('relative reference that cannot be mapped', () => {
     const plan = resolveComparison({ ...base, extra_form_data: { time_range: 'DATEADD(DATETIME("today"), -3, month)' } });
     expect(plan).toEqual({ active: false, source: 'none', reason: 'unsupported_relative' });
   });
 
-  test('nessun riferimento: non attivo', () => {
+  test('no reference: not active', () => {
     expect(resolveComparison({ ...base })).toEqual({ active: false, source: 'none', reason: 'no_reference_range' });
   });
 
-  test('custom: intervallo esplicito usato cosi com\'e\'', () => {
+  test('custom: explicit range used as is', () => {
     const plan = resolveComparison({
       ...base,
       dc_compare_preset: 'custom',
@@ -92,7 +92,7 @@ describe('resolveComparison: preset del chart', () => {
     expect(plan).toMatchObject({ active: true, window: { kind: 'range', range: '2024-01-01 : 2024-02-01' } });
   });
 
-  test('il filtro temporale del chart sostituisce il riferimento mancante', () => {
+  test('the chart time filter replaces a missing reference', () => {
     const plan = resolveComparison({ ...base, dc_compare_preset: 'previous_year' }, '2026-10-01 : 2026-11-01');
     expect(plan).toMatchObject({ active: true, window: { kind: 'shift', shift: '1 year ago' } });
   });

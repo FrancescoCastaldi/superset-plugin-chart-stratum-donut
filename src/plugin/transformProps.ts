@@ -17,23 +17,23 @@ export interface Notice {
   text: string;
 }
 
-/** Suggerimento mostrato quando le quote dipendono da un limite di righe. */
-const EXACT_HINT = 'Per il totale reale attiva "Totale esatto" nel pannello Dati (solo modalit\' colonna).';
+/** Hint shown when the shares depend on a row limit. */
+const EXACT_HINT = 'For the real total, enable "Exact total" in the Data section (column mode only).';
 
 const INACTIVE_TEXT: Record<string, string> = {
-  no_dashboard_comparison: 'Il filtro dashboard non ha un confronto attivo.',
-  no_reference_range: 'Confronto non disponibile: il periodo di riferimento deve avere data di inizio e fine.',
-  unsupported_relative: 'Periodo precedente non calcolabile per questa espressione: usa un intervallo esplicito o un preset (es. Anno precedente).',
-  no_temporal_column: 'Confronto non disponibile: il chart non ha una colonna temporale.',
+  no_dashboard_comparison: 'The dashboard filter has no active comparison.',
+  no_reference_range: 'Comparison not available: the reference period needs a start and an end date.',
+  unsupported_relative: 'Previous period cannot be computed for this expression: use an explicit range or a preset (e.g. Previous year).',
+  no_temporal_column: 'Comparison not available: the chart has no time column.',
 };
 
-/** Interazioni con la dashboard: cross-filter e menu contestuale. */
+/** Dashboard interactions: cross-filter and context menu. */
 export interface Interaction {
-  /** Colonna filtrabile: solo in modalita' colonna. */
+  /** Filterable column: column mode only. */
   column: string | null;
-  /** Chiavi delle fette selezionate (stato del filtro). */
+  /** Keys of the selected slices (filter state). */
   selectedKeys: string[];
-  /** Il chart emette cross-filter (impostato in Dashboard). */
+  /** The chart emits cross-filters (set in the dashboard). */
   emit: boolean;
   setDataMask?: (mask: any) => void;
   onContextMenu?: (x: number, y: number, payload: any) => void;
@@ -58,7 +58,7 @@ function temporalFilterValue(fd: Fd): string | null {
   return f?.comparator ?? null;
 }
 
-/** Ordinamento scelto nel pannello, tradotto nell'ordinamento del merge. */
+/** Sort chosen in the panel, translated into the merge sort. */
 function mapSort(sort: string | undefined, mode: 'column' | 'metrics'): SliceSort {
   if (sort === 'ref_asc') return 'value_asc';
   if (sort === 'name_asc') return 'label';
@@ -82,7 +82,7 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
   const refResult = queriesData[0] ?? { data: [] };
   const cmpResult = plan.cmp !== undefined ? queriesData[plan.cmp] : undefined;
 
-  // Metriche: quelle delle fette, e la metrica totale a parte (denominatore).
+  // Metrics: the slice metrics, plus the total metric apart (denominator).
   const metricLabels: string[] =
     mode === 'metrics' ? (fd.metrics ?? []).map(metricLabelOf) : [metricLabelOf(fd.metric)];
   const totalLabel = mode === 'metrics' && fd.dc_total_metric ? metricLabelOf(fd.dc_total_metric) : null;
@@ -98,7 +98,7 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
     if (!result || !label) return null;
     return parseNumber(result.data?.[0]?.[label]);
   };
-  // Denominatori: totale esatto da query dedicata (colonna) oppure metrica totale (metriche).
+  // Denominators: exact total from a dedicated query (column) or the total metric (metrics).
   let refDenominator: number | null = null;
   let cmpDenominator: number | null = null;
   if (exactTotal && plan.refTotal !== undefined) {
@@ -123,7 +123,7 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
       mode: fd.dc_other_mode ?? 'threshold',
       threshold: Number(fd.dc_other_threshold ?? 2),
       topN: Number(fd.dc_other_top_n ?? 8),
-      label: fd.dc_other_label || 'Altro',
+      label: fd.dc_other_label || 'Other',
     },
     sort: mapSort(fd.dc_sort, mode),
     hideZero: fd.dc_hide_zero_slices ?? true,
@@ -131,8 +131,8 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
   });
 
   const monthStyle = monthStyleOf(fd);
-  const refInfo = periodFromBounds(refResult.from_dttm, refResult.to_dttm, 'Riferimento', monthStyle);
-  const cmpInfo = cmpResult ? periodFromBounds(cmpResult.from_dttm, cmpResult.to_dttm, 'Confronto', monthStyle) : null;
+  const refInfo = periodFromBounds(refResult.from_dttm, refResult.to_dttm, 'Reference', monthStyle);
+  const cmpInfo = cmpResult ? periodFromBounds(cmpResult.from_dttm, cmpResult.to_dttm, 'Comparison', monthStyle) : null;
   const refLabel = fd.dc_ref_label || refInfo.label;
   const cmpLabel = cmpInfo ? fd.dc_cmp_label || cmpInfo.label : null;
 
@@ -141,10 +141,10 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
     const text = INACTIVE_TEXT[comparison.reason];
     if (text) notices.push({ level: 'info', text });
   }
-  if (refTruncated) notices.push({ level: 'warning', text: `Riferimento troncato a ${rowLimit} righe: quote approssimate, calcolate sulle righe restituite. ${EXACT_HINT}` });
-  if (cmpTruncated) notices.push({ level: 'warning', text: `Confronto troncato a ${rowLimit} righe: quote approssimate, calcolate sulle righe restituite. ${EXACT_HINT}` });
+  if (refTruncated) notices.push({ level: 'warning', text: `Reference truncated to ${rowLimit} rows: shares are approximate, calculated on the rows returned. ${EXACT_HINT}` });
+  if (cmpTruncated) notices.push({ level: 'warning', text: `Comparison truncated to ${rowLimit} rows: shares are approximate, calculated on the rows returned. ${EXACT_HINT}` });
   if (model.negativeKeys.length > 0) {
-    notices.push({ level: 'warning', text: `Valori negativi non rappresentabili nel donut, trattati come 0 (${model.negativeKeys.length}).` });
+    notices.push({ level: 'warning', text: `Negative values cannot be shown in the donut, treated as 0 (${model.negativeKeys.length}).` });
   }
 
   return {

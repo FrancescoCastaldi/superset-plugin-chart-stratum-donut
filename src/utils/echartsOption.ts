@@ -7,14 +7,14 @@ export interface SeriesLabels {
   cmpLabel: string | null;
 }
 
-/** Escape HTML: i nomi delle fette arrivano dai dati e non sono fidati. */
+/** HTML escape: slice names come from the data and are not trusted. */
 export function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c] as string);
 }
 
 const MIN_INNER_RADIUS = 8;
 
-/** Raggi in percentuale del semi-lato del contenitore. Anello esterno = riferimento. */
+/** Radii as a percentage of the container's half-size. Outer ring = reference. */
 export function ringRadii(style: OptionStyle, comparison: boolean): { outer: [string, string]; inner: [string, string] } {
   const o = style.outerRadius;
   const w = style.ringWidth;
@@ -28,7 +28,7 @@ export function ringRadii(style: OptionStyle, comparison: boolean): { outer: [st
   return { outer: [`${outerInner}%`, `${o}%`], inner: [`${innerInner}%`, `${innerOuter}%`] };
 }
 
-/** Testo dell'etichetta di una fetta secondo la scelta dell'utente. */
+/** Text of a slice's label, according to the user's choice. */
 export function labelText(s: SliceModel, style: OptionStyle, comparison: boolean): string {
   const pct = formatPercent(s.refShare, 1);
   const value = formatNumber(s.refValue, 0);
@@ -50,7 +50,7 @@ export function labelText(s: SliceModel, style: OptionStyle, comparison: boolean
   }
 }
 
-/** Testo del tooltip, con i valori dei due periodi e i delta scelti. */
+/** Tooltip text, with the values of both periods and the chosen deltas. */
 export function tooltipHtml(s: SliceModel, style: OptionStyle, labels: SeriesLabels, comparison: boolean): string {
   const rows: string[] = [`<strong>${escapeHtml(s.label)}</strong>`];
   const has = (item: string) => style.tooltipItems.includes(item as any);
@@ -59,17 +59,17 @@ export function tooltipHtml(s: SliceModel, style: OptionStyle, labels: SeriesLab
     if (comparison && labels.cmpLabel) rows.push(`${escapeHtml(labels.cmpLabel)}: ${formatNumber(s.cmpValue, 0)}`);
   }
   if (has('shares')) {
-    rows.push(`Quote: ${formatPercent(s.refShare, 1)}${comparison ? ` / ${formatPercent(s.cmpShare, 1)}` : ''}`);
+    rows.push(`Share: ${formatPercent(s.refShare, 1)}${comparison ? ` / ${formatPercent(s.cmpShare, 1)}` : ''}`);
   }
   if (comparison) {
-    if (has('delta_abs')) rows.push(`Differenza: ${formatSignedNumber(s.deltaAbs ?? 0, 0)}`);
-    if (has('delta_pct')) rows.push(`Variazione: ${formatDeltaPct(s.deltaPct, style.deltaDecimals)}`);
-    if (has('delta_pts')) rows.push(`Variazione quota: ${formatPts(s.deltaPts, style.deltaDecimals)}`);
+    if (has('delta_abs')) rows.push(`Difference: ${formatSignedNumber(s.deltaAbs ?? 0, 0)}`);
+    if (has('delta_pct')) rows.push(`Change: ${formatDeltaPct(s.deltaPct, style.deltaDecimals)}`);
+    if (has('delta_pts')) rows.push(`Share change: ${formatPts(s.deltaPts, style.deltaDecimals)}`);
   }
   return rows.join('<br/>');
 }
 
-/** Testo centrale: totale del riferimento, eventualmente con la variazione sul totale. */
+/** Center text: the reference total, optionally with the change on the total. */
 export function centerText(model: DonutModel, style: OptionStyle): string | null {
   if (style.centerContent === 'none') return null;
   const total = formatNumber(model.refTotal, 0);
@@ -80,7 +80,7 @@ export function centerText(model: DonutModel, style: OptionStyle): string | null
   return `${style.centerCaption}\n${total}\n${formatDeltaPct(delta, style.deltaDecimals)}`;
 }
 
-/** Opzione ECharts completa: due serie pie concentriche, nessuna legenda interna. */
+/** Full ECharts option: two concentric pie series, no built-in legend. */
 export function buildDonutOption(
   model: DonutModel,
   style: OptionStyle,
@@ -90,7 +90,7 @@ export function buildDonutOption(
   const comparison = model.hasComparison;
   const radii = ringRadii(style, comparison);
   const cmpOpacity = style.cmpStyle === 'faded' ? 0.55 : 1;
-  // Con una selezione attiva le fette non selezionate si attenuano su entrambi gli anelli.
+  // With an active selection, the unselected slices fade on both rings.
   const dim = (key: string) => selectedKeys.length > 0 && !selectedKeys.includes(key);
   const showLabel = (ring: 'outer' | 'inner') =>
     style.labelRings === 'both' || (style.labelRings === 'outer' && ring === 'outer');

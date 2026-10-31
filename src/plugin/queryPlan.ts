@@ -3,24 +3,24 @@ import { ComparisonPlan } from '../utils/comparison';
 type Fd = Record<string, any>;
 
 export interface QueryPlan {
-  /** Indice della query del riferimento (sempre 0). */
+  /** Index of the reference query (always 0). */
   ref: 0;
-  /** Indice della query del confronto, se il confronto e' attivo. */
+  /** Index of the comparison query, if the comparison is active. */
   cmp?: number;
-  /** Indici delle query dei totali esatti. */
+  /** Indexes of the exact-total queries. */
   refTotal?: number;
   cmpTotal?: number;
   comparison: ComparisonPlan;
 }
 
-/** Il chart ha una colonna temporale su cui applicare una finestra di confronto. */
+/** The chart has a time column the comparison window can be applied to. */
 export function hasTemporalColumn(fd: Fd): boolean {
   if (fd.dc_time_column) return true;
   if (fd.extra_form_data?.granularity_sqla) return true;
   return (fd.adhoc_filters ?? []).some((f: any) => f?.operator === 'TEMPORAL_RANGE');
 }
 
-/** Senza colonna temporale il confronto non si puo' applicare: resta disattivato. */
+/** Without a time column the comparison cannot be applied: it stays disabled. */
 export function guardComparison(comparison: ComparisonPlan, fd: Fd): ComparisonPlan {
   if (comparison.active && !hasTemporalColumn(fd)) {
     return { active: false, source: 'none', reason: 'no_temporal_column' };
@@ -29,8 +29,8 @@ export function guardComparison(comparison: ComparisonPlan, fd: Fd): ComparisonP
 }
 
 /**
- * Decide quante query servono e in che ordine. E' l'unico punto che stabilisce
- * gli indici: buildQuery e transformProps li leggono solo da qui.
+ * Decides how many queries are needed and in which order. This is the only place
+ * that sets the indexes: buildQuery and transformProps read them only from here.
  */
 export function planQueries(comparison: ComparisonPlan, exactTotal: boolean): QueryPlan {
   let next = 1;

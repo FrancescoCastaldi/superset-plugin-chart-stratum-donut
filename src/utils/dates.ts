@@ -1,18 +1,18 @@
 import { Granularity, PeriodInfo, PeriodRange } from '../types';
 
-export const IT_MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
-export const IT_MONTHS_LONG = [
-  'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
-  'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre',
+export const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+export const MONTHS_LONG = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
 const DAY_MS = 86_400_000;
-const NO_FILTER = new Set(['', 'no filter', 'nessun filtro']);
+const NO_FILTER = new Set(['', 'no filter']);
 
 function parseBound(text: string): Date | null {
   const t = text.trim();
   if (!t) return null;
-  // Data semplice YYYY-MM-DD: sempre UTC, per non spostare il giorno con il fuso.
+  // Plain date YYYY-MM-DD: always UTC, so the timezone never shifts the day.
   const m = t.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
   const d = new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(t) ? t : `${t}Z`);
@@ -20,15 +20,15 @@ function parseBound(text: string): Date | null {
 }
 
 /**
- * Interpreta un intervallo Superset esplicito: "A : B" (separatore del filtro
- * PeriodCompare) o "A:B" con date ISO. Restituisce null per intervalli relativi
- * ("Last month", "previous calendar year", ...) o non interpretabili.
+ * Parses an explicit Superset range: "A : B" (the PeriodCompare filter separator)
+ * or "A:B" with ISO dates. Returns null for relative ranges ("Last month",
+ * "previous calendar year", ...) or anything that cannot be parsed.
  */
 export function parseTimeRange(raw: string | null | undefined): PeriodRange | null {
   if (!raw || NO_FILTER.has(raw.trim().toLowerCase())) return null;
   let parts = raw.split(' : ');
   if (parts.length !== 2) {
-    // "2026-10-01:2026-11-01" o con orari ISO: il separatore e' il ':' tra due date.
+    // "2026-10-01:2026-11-01" or with ISO times: the separator is the ':' between two dates.
     const m = raw.match(/^\s*(\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?)\s*:\s*(\d{4}-\d{2}-\d{2}(?:T[\d:.]+Z?)?)\s*$/);
     if (!m) return null;
     parts = [m[1], m[2]];
@@ -47,7 +47,7 @@ function addMonths(d: Date, n: number): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, d.getUTCDate()));
 }
 
-/** Riconosce la granularita' di un intervallo semi-aperto. */
+/** Detects the granularity of a half-open range. */
 export function detectGranularity(range: PeriodRange): Granularity {
   const { start, end } = range;
   if (!isMidnight(start) || !isMidnight(end)) return 'custom';
@@ -65,11 +65,11 @@ function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 
-export function formatDateIt(d: Date): string {
-  return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}`;
+export function formatDate(d: Date): string {
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
-/** Numero di settimana ISO 8601. */
+/** ISO 8601 week number. */
 export function isoWeek(d: Date): number {
   const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
   const day = t.getUTCDay() || 7;
@@ -80,29 +80,29 @@ export function isoWeek(d: Date): number {
 
 export type MonthStyle = 'short' | 'long';
 
-/** Etichetta italiana in base alla granularita'. La fine e' esclusa: si mostra il giorno prima. */
+/** English label based on the granularity. The end is exclusive: the label shows the day before. */
 export function labelForRange(range: PeriodRange, monthStyle: MonthStyle = 'short'): string {
   const g = detectGranularity(range);
   const { start } = range;
-  const months = monthStyle === 'long' ? IT_MONTHS_LONG : IT_MONTHS_SHORT;
+  const months = monthStyle === 'long' ? MONTHS_LONG : MONTHS_SHORT;
   const lastDay = new Date(range.end.getTime() - (isMidnight(range.end) ? DAY_MS : 0));
   switch (g) {
     case 'year':
       return `${start.getUTCFullYear()}`;
     case 'quarter':
-      return `T${start.getUTCMonth() / 3 + 1} ${start.getUTCFullYear()}`;
+      return `Q${start.getUTCMonth() / 3 + 1} ${start.getUTCFullYear()}`;
     case 'month':
       return `${months[start.getUTCMonth()]} ${start.getUTCFullYear()}`;
     case 'week':
-      return `Sett. ${isoWeek(start)} ${start.getUTCFullYear()}`;
+      return `Wk ${isoWeek(start)} ${start.getUTCFullYear()}`;
     case 'day':
-      return formatDateIt(start);
+      return formatDate(start);
     default:
-      return `${formatDateIt(start)} - ${formatDateIt(lastDay)}`;
+      return `${formatDate(start)} - ${formatDate(lastDay)}`;
   }
 }
 
-/** Informazioni complete su un periodo, a partire dalla stringa ricevuta. */
+/** Full information about a period, starting from the string received. */
 export function describePeriod(
   raw: string | null | undefined,
   fallbackLabel: string,
@@ -116,7 +116,7 @@ export function describePeriod(
   return { raw: raw ?? null, range, granularity: detectGranularity(range), label: labelForRange(range, monthStyle) };
 }
 
-/** Formatta un intervallo come lo accetta Superset: "YYYY-MM-DD : YYYY-MM-DD". */
+/** Formats a range the way Superset accepts it: "YYYY-MM-DD : YYYY-MM-DD". */
 export function toTimeRangeString(range: PeriodRange): string {
   const f = (d: Date) => `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
   return `${f(range.start)} : ${f(range.end)}`;
@@ -124,7 +124,7 @@ export function toTimeRangeString(range: PeriodRange): string {
 
 export type ComparisonPreset = 'previous_period' | 'previous_year';
 
-/** Periodo di confronto calcolato dal riferimento esplicito (stessa logica del filtro PeriodCompare). */
+/** Comparison period computed from an explicit reference (same logic as the PeriodCompare filter). */
 export function shiftRange(range: PeriodRange, preset: ComparisonPreset): PeriodRange {
   if (preset === 'previous_year') {
     return { start: addMonthsClamped(range.start, -12), end: addMonthsClamped(range.end, -12) };

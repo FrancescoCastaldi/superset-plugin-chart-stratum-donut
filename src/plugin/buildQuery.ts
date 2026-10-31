@@ -4,7 +4,7 @@ import { guardComparison, planQueries } from './queryPlan';
 
 type Fd = Record<string, any>;
 
-/** Toglie i campi di confronto nativi: il backend li scarterebbe comunque. */
+/** Removes the native comparison fields: the backend would discard them anyway. */
 function stripNative(q: Record<string, any>): Record<string, any> {
   const out = { ...q };
   delete out.time_compare;
@@ -13,7 +13,7 @@ function stripNative(q: Record<string, any>): Record<string, any> {
   return out;
 }
 
-/** Aggiunge il TEMPORAL_RANGE sulla colonna scelta, se il chart non ne ha gia' uno. */
+/** Adds the TEMPORAL_RANGE on the chosen column, if the chart does not already have one. */
 function ensureTemporalFilter(q: Record<string, any>, fd: Fd): Record<string, any> {
   if (q.granularity) return q;
   const filters: any[] = q.filters ?? [];
@@ -23,7 +23,7 @@ function ensureTemporalFilter(q: Record<string, any>, fd: Fd): Record<string, an
   return { ...q, filters: [...filters, { col, op: 'TEMPORAL_RANGE', val: q.time_range ?? 'No filter' }] };
 }
 
-/** Colonne e metriche: identiche per riferimento e confronto. */
+/** Columns and metrics: identical for the reference and the comparison. */
 function shapeQuery(base: Record<string, any>, fd: Fd): Record<string, any> {
   if (fd.dc_mode === 'metrics') {
     const metrics = [...(fd.metrics ?? [])];
@@ -41,12 +41,12 @@ function shapeQuery(base: Record<string, any>, fd: Fd): Record<string, any> {
   };
 }
 
-/** Totale esatto: nessuna colonna, una sola riga. */
+/** Exact total: no column, a single row. */
 function totalQuery(base: Record<string, any>, fd: Fd): Record<string, any> {
   return { ...base, columns: [], metrics: fd.metric ? [fd.metric] : [], orderby: [], row_limit: 1 };
 }
 
-/** Sposta la query su un intervallo esplicito o su uno shift relativo. */
+/** Moves the query to an explicit range or to a relative shift. */
 function withWindow(q: Record<string, any>, comparison: ComparisonPlan): Record<string, any> {
   if (!comparison.active) return q;
   if (comparison.window.kind === 'range') return { ...q, time_range: comparison.window.range, time_shift: undefined };

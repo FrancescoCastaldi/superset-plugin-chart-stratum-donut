@@ -6,8 +6,8 @@ import { parseNumber } from '../src/utils/format';
 const colorFor = (key: string) => `color:${key}`;
 const rows = (pairs: [string, number | null][]) => pairs.map(([key, value]) => ({ key, label: key, value }));
 
-describe('mergePeriods: join completo', () => {
-  test('fette presenti in un solo periodo sono nuove o scomparse', () => {
+describe('mergePeriods: full join', () => {
+  test('slices present in only one period are new or missing', () => {
     const m = mergePeriods(rows([['a', 10], ['b', 30]]), rows([['b', 20], ['c', 5]]));
     const byKey = Object.fromEntries(m.slices.map(s => [s.key, s]));
     expect(byKey.a).toMatchObject({ refValue: 10, cmpValue: 0, isNew: true, isGone: false });
@@ -15,7 +15,7 @@ describe('mergePeriods: join completo', () => {
     expect(byKey.b).toMatchObject({ refValue: 30, cmpValue: 20, isNew: false, isGone: false });
   });
 
-  test('quote e variazione della quota', () => {
+  test('shares and share change', () => {
     const m = mergePeriods(rows([['a', 10], ['b', 30]]), rows([['b', 20], ['c', 5]]));
     const b = m.slices.find(s => s.key === 'b')!;
     expect(b.refShare).toBeCloseTo(0.75);
@@ -25,22 +25,22 @@ describe('mergePeriods: join completo', () => {
     expect(b.trend).toBe('up');
   });
 
-  test('valori negativi trattati come zero e segnalati', () => {
+  test('negative values are treated as zero and reported', () => {
     const m = mergePeriods(rows([['a', -5], ['b', 10]]), null);
     expect(m.negativeKeys).toEqual(['a']);
     expect(m.slices.find(s => s.key === 'a')!.refValue).toBe(0);
     expect(m.refTotal).toBe(10);
   });
 
-  test('senza confronto: nessun delta', () => {
+  test('without comparison: no delta', () => {
     const m = mergePeriods(rows([['a', 1], ['b', 3]]), null);
     expect(m.hasComparison).toBe(false);
     expect(m.slices[0]).toMatchObject({ cmpValue: null, deltaPct: null, deltaPts: null });
   });
 });
 
-describe('mergePeriods: periodi troncati', () => {
-  test('chiave assente da un periodo troncato e sconosciuta, non zero', () => {
+describe('mergePeriods: truncated periods', () => {
+  test('key missing from a truncated period is unknown, not zero', () => {
     const m = mergePeriods(rows([['a', 10]]), rows([['b', 20]]), { refTruncated: true });
     const b = m.slices.find(s => s.key === 'b')!;
     expect(b.unknown).toBe('ref');
@@ -52,8 +52,8 @@ describe('mergePeriods: periodi troncati', () => {
   });
 });
 
-describe('mergePeriods: Altro e rest', () => {
-  test('soglia: fette piccole raggruppate, quote coerenti', () => {
+describe('mergePeriods: Other and rest', () => {
+  test('threshold: small slices grouped, shares consistent', () => {
     const m = mergePeriods(rows([['a', 90], ['b', 5], ['c', 3], ['d', 2]]), null, { otherThreshold: 10 });
     const other = m.slices.find(s => s.isOther)!;
     expect(other.key).toBe('__other__');
@@ -63,18 +63,18 @@ describe('mergePeriods: Altro e rest', () => {
     expect(m.slices.reduce((acc, s) => acc + s.refShare, 0)).toBeCloseTo(1, 9);
   });
 
-  test('un solo membro sotto soglia: nessun Altro', () => {
+  test('a single member below the threshold: no Other', () => {
     const m = mergePeriods(rows([['a', 95], ['b', 3], ['c', 2]]), null, { otherThreshold: 2.5 });
     expect(m.slices.some(s => s.isOther)).toBe(false);
   });
 
-  test('top N: le prime N restano, il resto va in Altro', () => {
+  test('top N: the first N stay, the rest goes to Other', () => {
     const m = mergePeriods(rows([['a', 40], ['b', 30], ['c', 20], ['d', 10]]), null, { otherTopN: 2 });
     expect(m.slices.filter(s => !s.isOther).map(s => s.key)).toEqual(['a', 'b']);
     expect(m.slices.find(s => s.isOther)!.refValue).toBe(30);
   });
 
-  test('totale esatto maggiore della somma: fetta rest', () => {
+  test('exact total larger than the sum: rest slice', () => {
     const m = mergePeriods(rows([['a', 50], ['b', 50]]), null, { refDenominator: 200 });
     const rest = m.slices.find(s => s.key === '__rest__')!;
     expect(rest.refValue).toBe(100);
@@ -84,7 +84,7 @@ describe('mergePeriods: Altro e rest', () => {
 });
 
 describe('buildModel', () => {
-  test('fette nascoste escono prima del join: le quote si ricalcolano', () => {
+  test('hidden slices leave before the join: shares are recalculated', () => {
     const m = buildModel({
       mode: 'column',
       ref: rows([['a', 10], ['b', 30]]),
@@ -98,24 +98,24 @@ describe('buildModel', () => {
     expect(m.hiddenCount).toBe(1);
   });
 
-  test('nome personalizzato e colore dalla configurazione', () => {
+  test('custom name and color from the configuration', () => {
     const m = buildModel({
       mode: 'column',
       ref: rows([['a', 10]]),
       cmp: null,
-      sliceConfig: { a: { name: 'Riuscite', color: '#00ff00' } },
+      sliceConfig: { a: { name: 'Successful', color: '#00ff00' } },
       colorFor,
       other: { mode: 'none' },
     });
-    expect(m.slices[0]).toMatchObject({ label: 'Riuscite', color: '#00ff00' });
+    expect(m.slices[0]).toMatchObject({ label: 'Successful', color: '#00ff00' });
   });
 
-  test('polarita\' "meglio se minore": una diminuzione e\' positiva', () => {
+  test('polarity "lower is better": a decrease is positive', () => {
     const m = buildModel({
       mode: 'column',
-      ref: rows([['fallite', 5]]),
-      cmp: rows([['fallite', 10]]),
-      sliceConfig: { fallite: { polarity: 'lower_is_better' } },
+      ref: rows([['failed', 5]]),
+      cmp: rows([['failed', 10]]),
+      sliceConfig: { failed: { polarity: 'lower_is_better' } },
       colorFor,
       other: { mode: 'none' },
     });
@@ -123,7 +123,7 @@ describe('buildModel', () => {
     expect(m.slices[0].sentiment).toBe('positive');
   });
 
-  test('polarita\' neutra non colora', () => {
+  test('neutral polarity does not color', () => {
     const m = buildModel({
       mode: 'column',
       ref: rows([['a', 5]]),
@@ -135,7 +135,7 @@ describe('buildModel', () => {
     expect(m.slices[0].sentiment).toBe('neutral');
   });
 
-  test('fette a zero nascoste su richiesta e contate', () => {
+  test('zero slices hidden on request and counted', () => {
     const m = buildModel({
       mode: 'column',
       ref: rows([['a', 10], ['b', 0]]),
@@ -148,7 +148,7 @@ describe('buildModel', () => {
     expect(m.hiddenZeroCount).toBe(1);
   });
 
-  test('colore di Altro grigio', () => {
+  test('Other color is grey', () => {
     const m = buildModel({
       mode: 'column',
       ref: rows([['a', 90], ['b', 5], ['c', 5]]),
@@ -159,20 +159,20 @@ describe('buildModel', () => {
     expect(m.slices.find(s => s.isOther)!.color).toBe('#BFBFBF');
   });
 
-  test('ordinamento per valore, Altro in fondo', () => {
+  test('sorted by value, Other last', () => {
     const m = buildModel({
       mode: 'column',
-      ref: rows([['piccola', 1], ['grande', 80], ['media', 19]]),
+      ref: rows([['small', 1], ['large', 80], ['medium', 19]]),
       cmp: null,
       colorFor,
       other: { mode: 'threshold', threshold: 2 },
     });
-    expect(m.slices.map(s => s.key)).toEqual(['grande', 'media', 'piccola']);
+    expect(m.slices.map(s => s.key)).toEqual(['large', 'medium', 'small']);
   });
 });
 
 describe('rows', () => {
-  test('modalita\' colonna: chiave normalizzata e valore numerico', () => {
+  test('column mode: normalized key and numeric value', () => {
     const data = [{ status: 'Shipped', sum: '1.250,5' }, { status: null, sum: 3 }];
     const r = readRows(data, 'column', 'status', ['sum']);
     expect(r[0].key).toBe('Shipped');
@@ -180,27 +180,27 @@ describe('rows', () => {
     expect(r[1].value).toBe(3);
   });
 
-  test('modalita\' metriche: una fetta per metrica', () => {
-    const r = readRows([{ riuscite: 8, fallite: 2 }], 'metrics', null, ['riuscite', 'fallite']);
-    expect(r.map(x => [x.key, x.value])).toEqual([['riuscite', 8], ['fallite', 2]]);
+  test('metrics mode: one slice per metric', () => {
+    const r = readRows([{ successful: 8, failed: 2 }], 'metrics', null, ['successful', 'failed']);
+    expect(r.map(x => [x.key, x.value])).toEqual([['successful', 8], ['failed', 2]]);
   });
 
-  test('normalizeKey e parseNumber', () => {
+  test('normalizeKey and parseNumber', () => {
     expect(normalizeKey(true)).toBe('true');
     expect(parseNumber(' 7 ')).toBe(7);
     expect(parseNumber('12,5')).toBe(12.5);
     expect(parseNumber('abc')).toBeNull();
   });
 
-  test('troncamento: rowcount uguale al limite', () => {
+  test('truncation: rowcount equal to the limit', () => {
     expect(isTruncated({ rowcount: 100 }, 100)).toBe(true);
     expect(isTruncated({ rowcount: 99 }, 100)).toBe(false);
     expect(isTruncated(undefined, 100)).toBe(false);
   });
 });
 
-describe('colori', () => {
-  test('fette adiacenti hanno colori diversi, anche con chiavi che collidono', () => {
+describe('colors', () => {
+  test('adjacent slices have different colors, even with colliding keys', () => {
     const m = buildModel({
       mode: 'column',
       ref: rows([['boy', 30], ['girl', 20], ['x', 10]]),
@@ -212,4 +212,3 @@ describe('colori', () => {
     expect(new Set(colors).size).toBe(3);
   });
 });
-

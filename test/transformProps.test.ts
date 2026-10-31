@@ -42,16 +42,16 @@ function props(overrides: Record<string, any> = {}, queries?: any[]) {
   } as any;
 }
 
-describe('transformProps: confronto dal filtro dashboard', () => {
-  test('confronto attivo, etichette dai limiti del risultato', () => {
+describe('transformProps: comparison from the dashboard filter', () => {
+  test('active comparison, labels from the result bounds', () => {
     const t = transformProps(props());
     expect(t.comparisonActive).toBe(true);
-    expect(t.periods.header).toBe('Ott 2026 vs Ott 2025');
-    expect(t.periods.refLabel).toBe('Ott 2026');
+    expect(t.periods.header).toBe('Oct 2026 vs Oct 2025');
+    expect(t.periods.refLabel).toBe('Oct 2026');
     expect(t.comparisonType).toBe('values');
   });
 
-  test('fette unite: Shipped con variazione, Cancelled nuova', () => {
+  test('slices merged: Shipped with change, Cancelled new', () => {
     const t = transformProps(props());
     const shipped = t.model.slices.find(s => s.key === 'Shipped')!;
     const cancelled = t.model.slices.find(s => s.key === 'Cancelled')!;
@@ -61,48 +61,48 @@ describe('transformProps: confronto dal filtro dashboard', () => {
     expect(t.model.slices[0].key).toBe('Shipped');
   });
 
-  test('senza time_compare e senza preset: confronto assente con nota', () => {
+  test('no time_compare and no preset: comparison off with a notice', () => {
     const t = transformProps(props({ extra_form_data: { time_range: '2026-10-01 : 2026-11-01' }, dc_compare_source: 'dashboard' }), [
       { data: [{ status: 'A', 'SUM(sales)': 1 }], rowcount: 1, from_dttm: JAN, to_dttm: NOV },
     ]);
     expect(t.comparisonActive).toBe(false);
-    expect(t.notices.some(n => n.text.includes('filtro dashboard'))).toBe(true);
+    expect(t.notices.some(n => n.text.includes('dashboard filter'))).toBe(true);
     expect(t.model.hasComparison).toBe(false);
   });
 
-  test('senza colonna temporale il confronto non si attiva', () => {
+  test('without a time column the comparison does not activate', () => {
     const t = transformProps(props({ dc_time_column: undefined, adhoc_filters: [] }, [
       { data: [{ status: 'A', 'SUM(sales)': 1 }], rowcount: 1, from_dttm: JAN, to_dttm: NOV },
     ]));
     expect(t.comparisonActive).toBe(false);
-    expect(t.notices.some(n => n.text.includes('colonna temporale'))).toBe(true);
+    expect(t.notices.some(n => n.text.includes('time column'))).toBe(true);
   });
 });
 
-describe('transformProps: limiti e periodi aperti', () => {
-  test('riferimento troncato: avviso e chiavi sconosciute', () => {
+describe('transformProps: limits and open periods', () => {
+  test('truncated reference: warning and unknown keys', () => {
     const t = transformProps(props({ row_limit: 2 }));
-    const warning = t.notices.find(n => n.level === 'warning' && n.text.includes('Riferimento troncato'));
-    expect(warning?.text).toContain('quote approssimate');
-    expect(warning?.text).toContain('Totale esatto');
+    const warning = t.notices.find(n => n.level === 'warning' && n.text.includes('Reference truncated'));
+    expect(warning?.text).toContain('shares are approximate');
+    expect(warning?.text).toContain('Exact total');
   });
 
-  test('periodo senza limiti: "Tutto il periodo"', () => {
+  test('period without bounds: "Full period"', () => {
     const t = transformProps(props({ dc_compare_source: 'none' }, [
       { data: [{ status: 'A', 'SUM(sales)': 1 }], rowcount: 1, from_dttm: null, to_dttm: null },
     ]));
-    expect(t.periods.refLabel).toBe('Tutto il periodo');
+    expect(t.periods.refLabel).toBe('Full period');
     expect(t.comparisonActive).toBe(false);
   });
 
-  test('etichette personalizzate sovrascrivono quelle automatiche', () => {
-    const t = transformProps(props({ dc_ref_label: 'Quest\'anno', dc_cmp_label: 'Lo scorso' }));
-    expect(t.periods.header).toBe('Quest\'anno vs Lo scorso');
+  test('custom labels override the automatic ones', () => {
+    const t = transformProps(props({ dc_ref_label: 'This year', dc_cmp_label: 'Last year' }));
+    expect(t.periods.header).toBe('This year vs Last year');
   });
 });
 
-describe('transformProps: modalita\' metriche', () => {
-  test('una fetta per metrica, nell\'ordine dichiarato', () => {
+describe('transformProps: metrics mode', () => {
+  test('one slice per metric, in the declared order', () => {
     const t = transformProps(props({
       dc_mode: 'metrics',
       metrics: ['SUM(FlagBook)', 'SUM(FlagBookFailed)'],
@@ -116,7 +116,7 @@ describe('transformProps: modalita\' metriche', () => {
     expect(t.model.slices.map(s => [s.key, s.refValue])).toEqual([['SUM(FlagBook)', 8], ['SUM(FlagBookFailed)', 2]]);
   });
 
-  test('metrica totale come denominatore', () => {
+  test('total metric as denominator', () => {
     const t = transformProps(props({
       dc_mode: 'metrics',
       metrics: ['SUM(FlagBook)'],

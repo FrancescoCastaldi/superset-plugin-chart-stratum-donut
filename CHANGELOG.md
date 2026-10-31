@@ -1,25 +1,26 @@
 # Changelog
 
-Formato Keep a Changelog 1.1.0, versioni SemVer.
+Keep a Changelog 1.1.0 format, SemVer versioning.
 
 ## [0.1.0] - 2026-10-31
 
 ### Added
-- Donut a doppio anello: riferimento all'esterno, confronto all'interno.
-- Fette da colonna o da metriche.
-- Sorgenti del confronto: filtro dashboard PeriodCompare, preset del chart, nessun confronto.
-- Due query con la stessa forma: la finestra temporale cambia, le colonne restano.
-- Gestione di fette nuove e scomparse, con stato "Nuovo" e "Assente".
-- Raggruppamento in "Altro" per soglia o per prime N fette, e fetta "Altri" con totale esatto.
-- Polarità per fetta: meglio se maggiore, minore o neutro.
-- Legenda interattiva con valore, quota e variazione in punti.
-- Testo centrale con totale e variazione.
-- Cross-filter con clic e drill to detail con clic destro.
-- Pannello di controllo senza JSON, con controllo per fetta.
-- Installer idempotente che registra il plugin in `MainPreset.ts`.
-- Dev-studio con scenari di esempio.
+- Double-ring donut: reference period on the outside, comparison period on the inside.
+- Slices from a column or from metrics.
+- Comparison sources: PeriodCompare dashboard filter, chart preset, or no comparison.
+- Two queries with the same shape: only the time window changes, columns stay the same.
+- New and missing slices, marked "New" and "Missing".
+- Grouping into "Other" by threshold or by top N slices, with a "Rest" slice for the exact total.
+- Polarity per slice: higher is better, lower is better, or neutral.
+- Interactive legend with value, share and point change.
+- Center text with the total and its change.
+- Cross-filter on click and drill to detail on right click.
+- Control panel without JSON, with a per-slice control.
+- Idempotent installer that registers the plugin in `MainPreset.ts`.
+- Dev studio with sample scenarios.
 
 ### Fixed
-- Le chiavi assenti da un periodo troncato dal limite di righe non diventano zero inventati.
-- Il segno non compare sui valori che arrotondano a zero.
-- Il colore del testo segue il tema di Superset.
+- Keys missing from a period truncated by the row limit do not become invented zeros.
+- No sign on values that round to zero.
+- Text color follows the Superset theme.
+- Slices with colliding keys (e.g. `boy` and `girl`) get distinct colors, assigned by position.

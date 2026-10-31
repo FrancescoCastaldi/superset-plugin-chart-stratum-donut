@@ -3,26 +3,26 @@ import { parseNumber } from './format';
 
 export type Mode = 'column' | 'metrics';
 
-/** Chiave stabile di una fetta, uguale per riferimento e confronto. */
+/** Stable key of a slice, the same for the reference and the comparison. */
 export function normalizeKey(v: unknown): string {
   if (v === null || v === undefined) return '<NULL>';
   if (typeof v === 'boolean') return v ? 'true' : 'false';
   return String(v);
 }
 
-/** Nome di una colonna del groupby (stringa oppure oggetto Superset). */
+/** Name of a groupby column (a string or a Superset object). */
 export function columnNameOf(g: any): string {
   if (typeof g === 'string') return g;
   return g?.column_name ?? g?.label ?? g?.sqlExpression ?? '';
 }
 
-/** Etichetta con cui Superset chiama la colonna di una metrica nel risultato. */
+/** Label Superset uses for a metric's column in the result. */
 export function metricLabelOf(m: any): string {
   if (typeof m === 'string') return m;
   return m?.label ?? m?.optionName ?? m?.metric_name ?? m?.verbose_name ?? m?.sqlExpression ?? m?.column?.column_name ?? '';
 }
 
-/** Righe di una query come coppie chiave/valore. Modalita' metriche: una fetta per metrica. */
+/** Rows of a query as key/value pairs. Metrics mode: one slice per metric. */
 export function readRows(
   data: Record<string, any>[],
   mode: Mode,
@@ -40,7 +40,7 @@ export function readRows(
   });
 }
 
-/** La query ha raggiunto il row_limit: il risultato puo' essere incompleto. */
+/** The query reached the row_limit: the result may be incomplete. */
 export function isTruncated(result: { rowcount?: number } | undefined, rowLimit: number | undefined): boolean {
   return typeof result?.rowcount === 'number' && rowLimit !== undefined && result.rowcount >= rowLimit;
 }

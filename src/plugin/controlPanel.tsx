@@ -8,7 +8,7 @@ const compareSourceIs = (...sources: string[]) => ({ controls }: any) => sources
 const presetIs = (preset: string) => ({ controls }: any) => controls?.dc_compare_preset?.value === preset;
 const otherModeIs = (mode: string) => ({ controls }: any) => controls?.dc_other_mode?.value === mode;
 
-/** Colonne temporali del dataset, per scegliere quella del periodo. */
+/** Temporal columns of the dataset, to choose the one used for the period. */
 function temporalChoices({ datasource }: any) {
   const columns: any[] = datasource?.columns ?? [];
   return {
@@ -48,7 +48,7 @@ const checkbox = (label: string, def: boolean, extra: Record<string, unknown> = 
 const config: ControlPanelConfig = {
   controlPanelSections: [
     {
-      label: t('Dati'),
+      label: t('Data'),
       expanded: true,
       controlSetRows: [
         [
@@ -56,30 +56,30 @@ const config: ControlPanelConfig = {
             name: 'dc_mode',
             config: {
               type: 'RadioButtonControl',
-              label: t('Fette da'),
+              label: t('Slices from'),
               default: 'column',
               options: [
-                ['column', t('Colonna (ogni valore e\' una fetta)')],
-                ['metrics', t('Metriche (ogni metrica e\' una fetta)')],
+                ['column', t('Column (each value is a slice)')],
+                ['metrics', t('Metrics (each metric is a slice)')],
               ],
             },
           },
         ],
-        [{ name: 'metric', config: { ...sharedControls.metric, label: t('Metrica'), validators: [], visibility: modeIs('column') } }],
+        [{ name: 'metric', config: { ...sharedControls.metric, label: t('Metric'), validators: [], visibility: modeIs('column') } }],
         [
           {
             name: 'groupby',
-            config: { ...sharedControls.groupby, label: t('Dimensione (fette)'), multi: false, validators: [], visibility: modeIs('column') },
+            config: { ...sharedControls.groupby, label: t('Dimension (slices)'), multi: false, validators: [], visibility: modeIs('column') },
           },
         ],
-        [{ name: 'metrics', config: { ...sharedControls.metrics, label: t('Metriche (fette)'), validators: [], visibility: modeIs('metrics') } }],
+        [{ name: 'metrics', config: { ...sharedControls.metrics, label: t('Metrics (slices)'), validators: [], visibility: modeIs('metrics') } }],
         [
           {
             name: 'dc_total_metric',
             config: {
               type: 'SelectControl',
-              label: t('Metrica totale (opzionale)'),
-              description: t('Denominatore delle quote. Se assente, il totale e\' la somma delle fette.'),
+              label: t('Total metric (optional)'),
+              description: t('Denominator for the shares. If empty, the total is the sum of the slices.'),
               default: null,
               clearable: true,
               validators: [],
@@ -93,8 +93,8 @@ const config: ControlPanelConfig = {
             name: 'dc_time_column',
             config: {
               type: 'SelectControl',
-              label: t('Colonna temporale del periodo'),
-              description: t('Serve per applicare il periodo di riferimento e di confronto.'),
+              label: t('Period time column'),
+              description: t('Used to apply the reference and comparison periods.'),
               default: null,
               clearable: true,
               mapStateToProps: temporalChoices,
@@ -106,7 +106,7 @@ const config: ControlPanelConfig = {
             name: 'row_limit',
             config: {
               type: 'SelectControl',
-              label: t('Righe massime'),
+              label: t('Row limit'),
               default: 100,
               choices: [[10, '10'], [25, '25'], [50, '50'], [100, '100'], [250, '250'], [500, '500'], [1000, '1000']],
               visibility: modeIs('column'),
@@ -118,8 +118,8 @@ const config: ControlPanelConfig = {
             name: 'dc_exact_total',
             config: {
               type: 'CheckboxControl',
-              label: t('Totale esatto (query dedicata)'),
-              description: t('Usa il totale reale anche quando il limite di righe nasconde alcune fette.'),
+              label: t('Exact total (dedicated query)'),
+              description: t('Use the real total even when the row limit hides some slices.'),
               default: false,
               visibility: modeIs('column'),
             },
@@ -128,7 +128,7 @@ const config: ControlPanelConfig = {
       ],
     },
     {
-      label: t('Confronto periodi'),
+      label: t('Period comparison'),
       expanded: true,
       controlSetRows: [
         [
@@ -136,14 +136,14 @@ const config: ControlPanelConfig = {
             name: 'dc_compare_source',
             config: {
               type: 'SelectControl',
-              label: t('Confronto da'),
+              label: t('Compare from'),
               default: 'auto',
               clearable: false,
               choices: [
-                ['auto', t('Filtro dashboard, altrimenti il preset')],
-                ['dashboard', t('Solo filtro dashboard')],
-                ['chart', t('Solo preset del chart')],
-                ['none', t('Nessun confronto')],
+                ['auto', t('Dashboard filter, otherwise the preset')],
+                ['dashboard', t('Dashboard filter only')],
+                ['chart', t('Chart preset only')],
+                ['none', t('No comparison')],
               ],
             },
           },
@@ -153,18 +153,18 @@ const config: ControlPanelConfig = {
             name: 'dc_compare_preset',
             config: {
               type: 'SelectControl',
-              label: t('Periodo di confronto'),
-              description: t('Calcolato sul periodo di riferimento. Con un filtro dashboard il suo confronto ha la precedenza.'),
+              label: t('Comparison period'),
+              description: t('Calculated on the reference period. With a dashboard filter, its comparison takes precedence.'),
               default: 'previous_period',
               clearable: false,
               choices: [
-                ['previous_period', t('Periodo precedente di pari durata')],
-                ['previous_week', t('Settimana precedente')],
-                ['previous_month', t('Mese precedente')],
-                ['previous_quarter', t('Trimestre precedente')],
-                ['previous_year', t('Anno precedente')],
-                ['same_weekday_last_year', t('Stesso giorno della settimana, un anno fa')],
-                ['custom', t('Intervallo personalizzato')],
+                ['previous_period', t('Previous period of the same length')],
+                ['previous_week', t('Previous week')],
+                ['previous_month', t('Previous month')],
+                ['previous_quarter', t('Previous quarter')],
+                ['previous_year', t('Previous year')],
+                ['same_weekday_last_year', t('Same weekday, one year ago')],
+                ['custom', t('Custom range')],
               ],
               visibility: compareSourceIs('auto', 'chart'),
             },
@@ -175,7 +175,7 @@ const config: ControlPanelConfig = {
             name: 'dc_compare_custom_range',
             config: {
               type: 'DateFilterControl',
-              label: t('Intervallo di confronto'),
+              label: t('Comparison range'),
               default: 'No filter',
               visibility: ({ controls }: any) => compareSourceIs('auto', 'chart')({ controls }) && presetIs('custom')({ controls }),
             },
@@ -184,57 +184,57 @@ const config: ControlPanelConfig = {
       ],
     },
     {
-      label: t('Periodi e anelli'),
+      label: t('Periods and rings'),
       expanded: false,
       controlSetRows: [
-        [{ name: 'dc_ref_label', config: { type: 'TextControl', label: t('Etichetta riferimento'), default: '', renderTrigger: true } }],
-        [{ name: 'dc_cmp_label', config: { type: 'TextControl', label: t('Etichetta confronto'), default: '', renderTrigger: true } }],
+        [{ name: 'dc_ref_label', config: { type: 'TextControl', label: t('Reference label'), default: '', renderTrigger: true } }],
+        [{ name: 'dc_cmp_label', config: { type: 'TextControl', label: t('Comparison label'), default: '', renderTrigger: true } }],
         [
           {
             name: 'dc_period_style',
-            config: select('Stile del periodo', [['short', t('Breve: Ott 2026')], ['long', t('Esteso: Ottobre 2026')]], 'short'),
+            config: select('Period style', [['short', t('Short: Oct 2026')], ['long', t('Long: October 2026')]], 'short'),
           },
         ],
-        [{ name: 'dc_outer_radius', config: slider('Raggio esterno (%)', 40, 100, 1, 85) }],
-        [{ name: 'dc_ring_width', config: slider('Spessore anello (%)', 5, 40, 1, 25) }],
+        [{ name: 'dc_outer_radius', config: slider('Outer radius (%)', 40, 100, 1, 85) }],
+        [{ name: 'dc_ring_width', config: slider('Ring width (%)', 5, 40, 1, 25) }],
         [
           {
             name: 'dc_inner_ring_width',
-            config: slider('Spessore anello interno (0 = uguale)', 0, 40, 1, 0),
+            config: slider('Inner ring width (0 = same)', 0, 40, 1, 0),
           },
         ],
-        [{ name: 'dc_ring_gap', config: slider('Distanza tra anelli (%)', 0, 15, 1, 3) }],
-        [{ name: 'dc_start_angle', config: slider('Angolo di partenza', 0, 360, 1, 90) }],
+        [{ name: 'dc_ring_gap', config: slider('Gap between rings (%)', 0, 15, 1, 3) }],
+        [{ name: 'dc_start_angle', config: slider('Start angle', 0, 360, 1, 90) }],
         [
           {
             name: 'dc_cmp_style',
-            config: select('Stile anello confronto', [['faded', t('Attenuato')], ['solid', t('Pieno')]], 'faded'),
+            config: select('Comparison ring style', [['faded', t('Faded')], ['solid', t('Solid')]], 'faded'),
           },
         ],
       ],
     },
     {
-      label: t('Etichette'),
+      label: t('Labels'),
       expanded: false,
       controlSetRows: [
         [
           {
             name: 'dc_label_rings',
-            config: select('Anelli con etichetta', [['outer', t('Solo esterno')], ['both', t('Entrambi')], ['none', t('Nessuno')]], 'outer'),
+            config: select('Rings with labels', [['outer', t('Outer only')], ['both', t('Both')], ['none', t('None')]], 'outer'),
           },
         ],
         [
           {
             name: 'dc_label_content',
             config: select(
-              'Contenuto',
+              'Content',
               [
-                ['percent', t('Percentuale')],
-                ['value', t('Valore')],
-                ['value_percent', t('Valore e percentuale')],
-                ['name_percent', t('Nome e percentuale')],
-                ['name_value_percent', t('Nome, valore e percentuale')],
-                ['percent_delta', t('Percentuale e variazione')],
+                ['percent', t('Percentage')],
+                ['value', t('Value')],
+                ['value_percent', t('Value and percentage')],
+                ['name_percent', t('Name and percentage')],
+                ['name_value_percent', t('Name, value and percentage')],
+                ['percent_delta', t('Percentage and change')],
               ],
               'name_percent',
             ),
@@ -243,62 +243,62 @@ const config: ControlPanelConfig = {
         [
           {
             name: 'dc_label_position',
-            config: select('Posizione', [['outside', t('Fuori')], ['inside', t('Dentro')]], 'outside'),
+            config: select('Position', [['outside', t('Outside')], ['inside', t('Inside')]], 'outside'),
           },
         ],
-        [{ name: 'dc_label_min_share', config: slider('Etichetta solo sopra (%)', 0, 10, 0.5, 3) }],
+        [{ name: 'dc_label_min_share', config: slider('Label only above (%)', 0, 10, 0.5, 3) }],
       ],
     },
     {
-      label: t('Fette'),
+      label: t('Slices'),
       expanded: false,
       controlSetRows: [[{ name: 'dc_slice_config', config: sliceConfigControl }]],
     },
     {
-      label: t('Raggruppamento e ordine'),
+      label: t('Grouping and order'),
       expanded: false,
       controlSetRows: [
         [
           {
             name: 'dc_other_mode',
-            config: select('Fette piccole', [['threshold', t('Sotto una soglia')], ['top_n', t('Solo le prime N')], ['none', t('Nessun raggruppamento')]], 'threshold'),
+            config: select('Small slices', [['threshold', t('Below a threshold')], ['top_n', t('Only the top N')], ['none', t('No grouping')]], 'threshold'),
           },
         ],
         [
           {
             name: 'dc_other_threshold',
-            config: slider('Soglia (%)', 0, 20, 0.5, 2, { visibility: otherModeIs('threshold') }),
+            config: slider('Threshold (%)', 0, 20, 0.5, 2, { visibility: otherModeIs('threshold') }),
           },
         ],
         [
           {
             name: 'dc_other_top_n',
-            config: slider('Fette da tenere (N)', 2, 30, 1, 8, { visibility: otherModeIs('top_n') }),
+            config: slider('Slices to keep (N)', 2, 30, 1, 8, { visibility: otherModeIs('top_n') }),
           },
         ],
-        [{ name: 'dc_other_label', config: { type: 'TextControl', label: t('Nome del gruppo'), default: 'Altro', renderTrigger: true } }],
+        [{ name: 'dc_other_label', config: { type: 'TextControl', label: t('Group name'), default: 'Other', renderTrigger: true } }],
         [
           {
             name: 'dc_sort',
             config: select(
-              'Ordine delle fette',
-              [['auto', t('Automatico')], ['ref_desc', t('Valore decrescente')], ['ref_asc', t('Valore crescente')], ['name_asc', t('Nome')]],
+              'Slice order',
+              [['auto', t('Automatic')], ['ref_desc', t('Value, descending')], ['ref_asc', t('Value, ascending')], ['name_asc', t('Name')]],
               'auto',
             ),
           },
         ],
-        [{ name: 'dc_hide_zero_slices', config: checkbox('Nascondi fette a zero', true) }],
+        [{ name: 'dc_hide_zero_slices', config: checkbox('Hide zero slices', true) }],
       ],
     },
     {
-      label: t('Legenda e centro'),
+      label: t('Legend and center'),
       expanded: false,
       controlSetRows: [
-        [{ name: 'dc_legend_show', config: checkbox('Mostra legenda', true) }],
+        [{ name: 'dc_legend_show', config: checkbox('Show legend', true) }],
         [
           {
             name: 'dc_legend_position',
-            config: select('Posizione legenda', [['right', t('A destra')], ['bottom', t('In basso')]], 'right'),
+            config: select('Legend position', [['right', t('Right')], ['bottom', t('Bottom')]], 'right'),
           },
         ],
         [
@@ -307,9 +307,9 @@ const config: ControlPanelConfig = {
             config: {
               type: 'SelectControl',
               multi: true,
-              label: t('Colonne della legenda'),
+              label: t('Legend columns'),
               default: ['value', 'share', 'delta'],
-              choices: [['value', t('Valore')], ['share', t('Quota')], ['delta', t('Variazione')]],
+              choices: [['value', t('Value')], ['share', t('Share')], ['delta', t('Change')]],
               renderTrigger: true,
             },
           },
@@ -318,17 +318,17 @@ const config: ControlPanelConfig = {
           {
             name: 'dc_center_content',
             config: select(
-              'Testo al centro',
-              [['ref_total_delta', t('Totale e variazione')], ['ref_total', t('Solo totale')], ['none', t('Nessuno')]],
+              'Center text',
+              [['ref_total_delta', t('Total and change')], ['ref_total', t('Total only')], ['none', t('None')]],
               'ref_total_delta',
             ),
           },
         ],
-        [{ name: 'dc_center_caption', config: { type: 'TextControl', label: t('Titolo del centro'), default: 'Totale', renderTrigger: true } }],
+        [{ name: 'dc_center_caption', config: { type: 'TextControl', label: t('Center title'), default: 'Total', renderTrigger: true } }],
       ],
     },
     {
-      label: t('Tooltip, delta e formati'),
+      label: t('Tooltip, change and formats'),
       expanded: false,
       controlSetRows: [
         [
@@ -337,14 +337,14 @@ const config: ControlPanelConfig = {
             config: {
               type: 'SelectControl',
               multi: true,
-              label: t('Voci del tooltip'),
+              label: t('Tooltip items'),
               default: ['values', 'shares', 'delta_pct', 'delta_pts'],
               choices: [
-                ['values', t('Valori dei due periodi')],
-                ['shares', t('Quote')],
-                ['delta_abs', t('Differenza assoluta')],
-                ['delta_pct', t('Variazione %')],
-                ['delta_pts', t('Variazione quota in punti')],
+                ['values', t('Values of both periods')],
+                ['shares', t('Shares')],
+                ['delta_abs', t('Absolute difference')],
+                ['delta_pct', t('Change %')],
+                ['delta_pts', t('Share change in points')],
               ],
               renderTrigger: true,
             },
@@ -354,8 +354,8 @@ const config: ControlPanelConfig = {
           {
             name: 'dc_default_polarity',
             config: select(
-              'Significato predefinito della variazione',
-              [['higher_is_better', t('Meglio se maggiore')], ['lower_is_better', t('Meglio se minore')], ['neutral', t('Neutro')]],
+              'Default meaning of a change',
+              [['higher_is_better', t('Higher is better')], ['lower_is_better', t('Lower is better')], ['neutral', t('Neutral')]],
               'higher_is_better',
             ),
           },
@@ -363,12 +363,12 @@ const config: ControlPanelConfig = {
         [
           {
             name: 'dc_delta_arrows',
-            config: select('Frecce', [['triangle', '▲ ▼'], ['arrow', '↑ ↓'], ['none', t('Nessuna')]], 'triangle'),
+            config: select('Arrows', [['triangle', '▲ ▼'], ['arrow', '↑ ↓'], ['none', t('None')]], 'triangle'),
           },
         ],
-        [{ name: 'dc_delta_decimals', config: slider('Decimali delle variazioni', 0, 3, 1, 1) }],
+        [{ name: 'dc_delta_decimals', config: slider('Change decimals', 0, 3, 1, 1) }],
         [{ name: 'color_scheme', config: { ...sharedControls.color_scheme, renderTrigger: true } }],
-        [{ name: 'number_format', config: { ...sharedControls.y_axis_format, label: t('Formato dei valori'), default: 'SMART_NUMBER', renderTrigger: true } }],
+        [{ name: 'number_format', config: { ...sharedControls.y_axis_format, label: t('Value format'), default: 'SMART_NUMBER', renderTrigger: true } }],
       ],
     },
   ],

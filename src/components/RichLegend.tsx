@@ -15,12 +15,12 @@ interface Props {
   hiddenKeys: Set<string>;
 }
 
-/** Legenda HTML: colore, nome, valore, quota e variazione per fetta. Interattiva. */
+/** HTML legend: color, name, value, share and change per slice. Interactive. */
 export default function RichLegend(props: Props) {
   const { slices, columns, comparison, arrows, deltaDecimals, hovered, onHover, onToggle, hiddenKeys } = props;
   const has = (c: LegendColumn) => columns.includes(c);
   return (
-    <ul className="dc-legend" aria-label="Legenda">
+    <ul className="dc-legend" aria-label="Legend">
       {slices.map(s => {
         const off = hiddenKeys.has(s.key);
         return (
@@ -44,15 +44,15 @@ export default function RichLegend(props: Props) {
             <span>
               <span style={{ display: 'block' }}>
                 {s.label}
-                {s.isNew ? <em style={{ marginLeft: 4, opacity: 0.7 }}>Nuovo</em> : null}
-                {s.isGone ? <em style={{ marginLeft: 4, opacity: 0.7 }}>Assente</em> : null}
-                {s.unknown !== 'none' ? <em style={{ marginLeft: 4, opacity: 0.7 }}>n.d.</em> : null}
+                {s.isNew ? <em style={{ marginLeft: 4, opacity: 0.7 }}>New</em> : null}
+                {s.isGone ? <em style={{ marginLeft: 4, opacity: 0.7 }}>Missing</em> : null}
+                {s.unknown !== 'none' ? <em style={{ marginLeft: 4, opacity: 0.7 }}>n/a</em> : null}
               </span>
               <span style={{ display: 'block', opacity: 0.8, fontVariantNumeric: 'tabular-nums' }}>
                 {has('value') ? formatNumber(s.refValue, 0) : null}
                 {has('share') ? ` · ${formatPercent(s.refShare, 1)}` : null}
                 {comparison && has('delta') && s.deltaPts !== null ? (
-                  <span title={`Variazione %: ${formatDeltaPct(s.deltaPct, deltaDecimals)}`} style={{ marginLeft: 6 }}>
+                  <span title={`Change %: ${formatDeltaPct(s.deltaPct, deltaDecimals)}`} style={{ marginLeft: 6 }}>
                     {trendArrow(s.trendShare, arrows)} {formatPts(s.deltaPts, deltaDecimals)}
                   </span>
                 ) : null}

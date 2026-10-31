@@ -5,22 +5,22 @@ export interface PeriodRow {
   key: string;
   label?: string;
   value: number | null | undefined;
-  /** Valore originale della dimensione, per il cross-filter. */
+  /** Original dimension value, used for the cross-filter. */
   raw?: unknown;
 }
 
 export interface MergeOptions {
-  /** Soglia in % (0-100): fette sotto soglia nel riferimento vanno in "Altro". 0 = disattivato. */
+  /** Threshold in % (0-100): reference slices below it go to "Other". 0 = disabled. */
   otherThreshold?: number;
-  /** In alternativa alla soglia: le prime N fette restano, il resto va in "Altro". */
+  /** Alternative to the threshold: the top N slices stay, the rest goes to "Other". */
   otherTopN?: number;
   otherLabel?: string;
   restLabel?: string;
   sort?: SliceSort;
-  /** Il periodo ha raggiunto il row_limit: le chiavi assenti non sono zero ma sconosciute. */
+  /** The period reached the row_limit: missing keys are unknown, not zero. */
   refTruncated?: boolean;
   cmpTruncated?: boolean;
-  /** Totali esatti da query dedicata. Se maggiori della somma, la differenza e' la fetta "rest". */
+  /** Exact totals from a dedicated query. If larger than the sum, the difference is the "rest" slice. */
   refDenominator?: number | null;
   cmpDenominator?: number | null;
 }
@@ -39,7 +39,7 @@ function sum(values: number[]): number {
   return values.reduce((a, b) => a + b, 0);
 }
 
-/** Direzione della quota: sotto 0,05 punti la fetta e' ferma. */
+/** Share direction: below 0.05 points the slice is flat. */
 function shareTrend(deltaPts: number | null): TrendDirection {
   if (deltaPts === null) return 'flat';
   if (deltaPts > 0.05) return 'up';
@@ -88,23 +88,23 @@ function sortSlices(slices: SliceDatum[], sort: SliceSort): SliceDatum[] {
   const order = new Map(slices.map((s, i) => [s.key, i]));
   const tail = (s: SliceDatum) => (s.key === REST_KEY ? 2 : s.isOther ? 1 : 0);
   const byValue = (a: SliceDatum, b: SliceDatum) =>
-    a.refValue - b.refValue || (a.cmpValue ?? 0) - (b.cmpValue ?? 0) || a.label.localeCompare(b.label, 'it');
+    a.refValue - b.refValue || (a.cmpValue ?? 0) - (b.cmpValue ?? 0) || a.label.localeCompare(b.label, 'en');
   const sorted = [...slices];
   sorted.sort((a, b) => {
     const t = tail(a) - tail(b);
     if (t !== 0) return t;
     if (sort === 'value_desc') return byValue(b, a);
     if (sort === 'value_asc') return byValue(a, b);
-    if (sort === 'label') return a.label.localeCompare(b.label, 'it');
+    if (sort === 'label') return a.label.localeCompare(b.label, 'en');
     return (order.get(a.key) ?? 0) - (order.get(b.key) ?? 0);
   });
   return sorted;
 }
 
 /**
- * Unisce riferimento e confronto con un join completo sulla chiave della fetta:
- * le fette presenti in un solo periodo restano (isNew / isGone). Un periodo
- * troncato non produce zeri inventati: le chiavi assenti restano sconosciute.
+ * Merges reference and comparison with a full join on the slice key: slices present
+ * in only one period are kept (isNew / isGone). A truncated period does not produce
+ * invented zeros: missing keys stay unknown.
  */
 export function mergePeriods(ref: PeriodRow[], cmp: PeriodRow[] | null, opts: MergeOptions = {}): MergeResult {
   const hasComparison = cmp !== null;
@@ -159,7 +159,7 @@ export function mergePeriods(ref: PeriodRow[], cmp: PeriodRow[] | null, opts: Me
       unknownOf(key),
     ), raw: rawOf.get(key) }));
 
-  // "Altro": fette piccole nel riferimento e, se presenti, anche nel confronto.
+  // "Other": small slices in the reference and, if present, also in the comparison.
   const candidates = slices.filter(s => s.unknown === 'none');
   let small: SliceDatum[] = [];
   if (opts.otherTopN && opts.otherTopN > 0) {
@@ -172,7 +172,7 @@ export function mergePeriods(ref: PeriodRow[], cmp: PeriodRow[] | null, opts: Me
     const smallKeys = new Set(small.map(s => s.key));
     const other = buildSlice(
       OTHER_KEY,
-      opts.otherLabel ?? 'Altro',
+      opts.otherLabel ?? 'Other',
       sum(small.map(s => s.refValue)),
       sum(small.map(s => s.cmpValue ?? 0)),
       refTotal,
@@ -185,13 +185,13 @@ export function mergePeriods(ref: PeriodRow[], cmp: PeriodRow[] | null, opts: Me
     slices = [...slices.filter(s => !smallKeys.has(s.key)), other];
   }
 
-  // Fetta "rest": quanto del totale esatto non e' nelle righe restituite.
+  // "Rest" slice: how much of the exact total is not in the returned rows.
   const restRef = opts.refDenominator != null ? opts.refDenominator - knownRefSum : 0;
   const restCmp = hasComparison && opts.cmpDenominator != null ? opts.cmpDenominator - knownCmpSum : 0;
   if (restRef > 0) {
     const rest = buildSlice(
       REST_KEY,
-      opts.restLabel ?? 'Altri (oltre il limite)',
+      opts.restLabel ?? 'Others (beyond the limit)',
       restRef,
       Math.max(0, restCmp),
       refTotal,

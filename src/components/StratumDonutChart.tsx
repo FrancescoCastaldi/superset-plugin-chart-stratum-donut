@@ -15,7 +15,7 @@ interface Handlers {
   onSliceContext: (index: number, x: number, y: number) => void;
 }
 
-/** Grafico ECharts: ridimensionamento, eventi e pulizia alla rimozione. */
+/** ECharts chart: resizing, events and cleanup on unmount. */
 function EchartsDonut({
   option,
   width,
@@ -29,7 +29,7 @@ function EchartsDonut({
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<echarts.ECharts | null>(null);
-  // Gli eventi leggono sempre i gestori piu' recenti, senza ri-registrarli.
+  // Events always read the latest handlers, without re-registering them.
   const handlersRef = useRef(handlers);
   handlersRef.current = handlers;
 
@@ -64,7 +64,7 @@ function EchartsDonut({
   return <div ref={ref} style={{ width, height }} />;
 }
 
-/** Componente principale: intestazione del periodo, donut, legenda, interazioni e avvisi. */
+/** Main component: period header, donut, legend, interactions and notices. */
 export default function StratumDonutChart(props: TransformedProps) {
   const { width, height, model, periods, notices, comparisonActive, style, interaction } = props;
   const [hovered, setHovered] = useState<string | null>(null);
@@ -83,7 +83,7 @@ export default function StratumDonutChart(props: TransformedProps) {
     [visibleModel, style, periods, comparisonActive, interaction.selectedKeys],
   );
 
-  // Selezione corrente con il valore originale, per costruire il filtro IN.
+  // Current selection with the original value, to build the IN filter.
   const selectedWithRaw = () =>
     model.slices.filter(s => interaction.selectedKeys.includes(s.key)).map(s => ({ key: s.key, raw: s.raw }));
 

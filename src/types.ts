@@ -1,22 +1,22 @@
-/** Direzione del delta. 'none' = base zero (fetta nuova), si mostra "Nuovo". */
+/** Direction of the delta. 'none' = zero base (new slice), shown as "New". */
 export type TrendDirection = 'up' | 'down' | 'flat' | 'none';
 
-/** Da cosa nascono le fette: valori di una colonna oppure una fetta per metrica. */
+/** Where the slices come from: values of a column, or one slice per metric. */
 export type SliceMode = 'column' | 'metrics';
 
-/** Cosa mostrare per una fetta. */
+/** What to show for a slice. */
 export type ValueDisplay = 'value' | 'percent' | 'value_percent';
 
-/** Significato del delta: per "lower_is_better" una diminuzione e' positiva. */
+/** Meaning of the delta: for "lower_is_better" a decrease is positive. */
 export type Polarity = 'higher_is_better' | 'lower_is_better' | 'neutral';
 
-/** Ordinamento delle fette (sempre sul periodo di riferimento, "Altro" in fondo). */
+/** Slice sort (always on the reference period, "Other" at the end). */
 export type SliceSort = 'value_desc' | 'value_asc' | 'label' | 'data';
 
-/** Delta mostrato per fetta: punti di quota, variazione % del valore o entrambi. */
+/** Delta shown per slice: share points, percentage change of the value, or both. */
 export type DeltaMode = 'points' | 'percent' | 'both' | 'none';
 
-/** Intervallo semi-aperto [start, end), in UTC. */
+/** Half-open interval [start, end), in UTC. */
 export interface PeriodRange {
   start: Date;
   end: Date;
@@ -25,43 +25,43 @@ export interface PeriodRange {
 export type Granularity = 'all' | 'open_start' | 'open_end' | 'day' | 'week' | 'month' | 'quarter' | 'year' | 'custom';
 
 export interface PeriodInfo {
-  /** Stringa originale ricevuta (es. "2026-10-01 : 2026-11-01" o "Last month"). */
+  /** Original string received (e.g. "2026-10-01 : 2026-11-01" or "Last month"). */
   raw: string | null;
-  /** Intervallo esplicito, se la stringa e' interpretabile. */
+  /** Explicit range, if the string can be parsed. */
   range: PeriodRange | null;
   granularity: Granularity | null;
-  /** Etichetta leggibile, es. "Ott 2026", "2026", "01/10/2026 - 15/10/2026". */
+  /** Readable label, e.g. "Oct 2026", "2026", "2026-10-01 - 2026-10-15". */
   label: string;
 }
 
-/** Riga normalizzata: una fetta con i due periodi gia' uniti. */
+/** Normalized row: one slice with both periods already merged. */
 export interface SliceDatum {
   key: string;
   label: string;
   refValue: number;
   cmpValue: number | null;
-  /** Quote in [0, 1] sul totale del rispettivo periodo. */
+  /** Shares in [0, 1] of the total of the respective period. */
   refShare: number;
   cmpShare: number | null;
   deltaAbs: number | null;
-  /** Variazione % del valore (riferimento vs confronto), null se base zero. */
+  /** Percentage change of the value (reference vs comparison), null if the base is zero. */
   deltaPct: number | null;
-  /** Variazione della quota in punti percentuali. */
+  /** Change of the share in percentage points. */
   deltaPts: number | null;
-  /** Direzione della variazione del valore. */
+  /** Direction of the value change. */
   trend: TrendDirection;
-  /** Direzione della variazione della quota (punti). */
+  /** Direction of the share change (points). */
   trendShare: TrendDirection;
-  /** Presente nel riferimento ma assente nel confronto. */
+  /** Present in the reference but missing in the comparison. */
   isNew: boolean;
-  /** Presente solo nel confronto. */
+  /** Present only in the comparison. */
   isGone: boolean;
   isOther: boolean;
-  /** 'ref' o 'cmp' se quel periodo ha raggiunto il limite di righe: il valore non e' noto. */
+  /** 'ref' or 'cmp' if that period reached the row limit: the value is not known. */
   unknown: 'none' | 'ref' | 'cmp';
-  /** Valore originale della dimensione (per il cross-filter), assente per Altro e Altri. */
+  /** Original dimension value (for the cross-filter), absent for Other and Others. */
   raw?: unknown;
-  /** Chiavi raggruppate in "Altro". */
+  /** Keys grouped into "Other". */
   members?: string[];
 }
 
@@ -70,6 +70,6 @@ export interface MergeResult {
   refTotal: number;
   cmpTotal: number | null;
   hasComparison: boolean;
-  /** Valori negativi trovati: in un donut non hanno senso, vengono trattati come 0. */
+  /** Negative values found: they make no sense in a donut, so they are treated as 0. */
   negativeKeys: string[];
 }

@@ -18,7 +18,7 @@ export type ComparisonPlan =
   | { active: false; source: 'none'; reason: InactiveReason }
   | { active: true; source: 'dashboard' | 'chart'; window: ComparisonWindow; comparisonType: ComparisonType };
 
-/** Espressioni relative di Superset (case-insensitive) convertite in uno shift. */
+/** Superset relative expressions (case-insensitive) converted into a shift. */
 const RELATIVE_SHIFTS: Record<string, string> = {
   'last day': '1 day ago',
   'last week': '1 week ago',
@@ -45,13 +45,13 @@ const PRESET_SHIFTS: Record<string, string> = {
   same_weekday_last_year: '52 weeks ago',
 };
 
-const NO_FILTER = new Set(['', 'no filter', 'nessun filtro']);
+const NO_FILTER = new Set(['', 'no filter']);
 
 function isUnbounded(expr: string | null | undefined): boolean {
   return !expr || NO_FILTER.has(expr.trim().toLowerCase());
 }
 
-/** Converte un'espressione relativa in uno shift, oppure null se non e' supportata. */
+/** Converts a relative expression into a shift, or null if it is not supported. */
 export function relativeToShift(expr: string): string | null {
   const key = expr.trim().toLowerCase();
   if (RELATIVE_SHIFTS[key]) return RELATIVE_SHIFTS[key];
@@ -63,7 +63,7 @@ export function relativeToShift(expr: string): string | null {
   return `${n} ${unit}s ago`;
 }
 
-/** Previous period per un intervallo esplicito, come nel filtro PeriodCompare. */
+/** Previous period for an explicit range, as in the PeriodCompare filter. */
 function previousPeriodWindow(reference: string): ComparisonWindow | null {
   const range = parseTimeRange(reference);
   if (!range) return null;
@@ -75,15 +75,15 @@ function inactive(reason: InactiveReason): ComparisonPlan {
 }
 
 /**
- * Sceglie il periodo di confronto. Ordine delle regole:
- *  1. source = none: nessun confronto.
- *  2. source = auto | dashboard: se il filtro dashboard PeriodCompare (o un time_compare nativo)
- *     ha un valore, lo si usa; il valore e' un intervallo esplicito oppure uno shift.
- *  3. source = dashboard senza time_compare: nessun confronto.
- *  4. preset del chart, calcolato sul riferimento.
+ * Chooses the comparison period. Order of the rules:
+ *  1. source = none: no comparison.
+ *  2. source = auto | dashboard: if the PeriodCompare dashboard filter (or a native
+ *     time_compare) has a value, it is used; the value is an explicit range or a shift.
+ *  3. source = dashboard without time_compare: no comparison.
+ *  4. chart preset, computed on the reference.
  *
- * @param fd formData in forma snake_case (extra_form_data, dc_* ...).
- * @param temporalFilterValue valore del filtro TEMPORAL_RANGE del chart, se presente.
+ * @param fd formData in snake_case form (extra_form_data, dc_* ...).
+ * @param temporalFilterValue value of the chart's TEMPORAL_RANGE filter, if present.
  */
 export function resolveComparison(
   fd: Record<string, any>,
@@ -109,7 +109,7 @@ export function resolveComparison(
   }
   if (source === 'dashboard') return inactive('no_dashboard_comparison');
 
-  // Preset del chart.
+  // Chart preset.
   const preset = (fd.dc_compare_preset ?? 'previous_period') as string;
   if (preset === 'custom') {
     const custom: string | null = fd.dc_compare_custom_range ?? null;
@@ -124,7 +124,7 @@ export function resolveComparison(
     return { active: true, source: 'chart', window: { kind: 'shift', shift: PRESET_SHIFTS[preset as keyof typeof PRESET_SHIFTS] }, comparisonType };
   }
 
-  // previous_period: esplicito -> calcolato nel browser; relativo -> shift.
+  // previous_period: explicit -> computed in the browser; relative -> shift.
   if (isUnbounded(reference)) return inactive('no_reference_range');
   const explicit = previousPeriodWindow(reference!);
   if (explicit) return { active: true, source: 'chart', window: explicit, comparisonType };

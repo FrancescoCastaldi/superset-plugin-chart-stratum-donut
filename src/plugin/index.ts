@@ -8,13 +8,13 @@ import example from '../images/example.png';
 const t = (str: string) => str;
 
 const metadata = new ChartMetadata({
-  name: t('StratumDonut: doppio anello'),
+  name: t('StratumDonut: double ring'),
   description: t(
-    'Donut a doppio anello per confrontare due periodi: quote, variazioni e legenda ricca. Il periodo di confronto arriva dal filtro PeriodCompare o dal preset del chart.',
+    'Double-ring donut to compare two periods: shares, changes and a rich legend. The comparison period comes from the PeriodCompare filter or from the chart preset.',
   ),
   behaviors: [Behavior.InteractiveChart],
   category: t('Part of a Whole'),
-  tags: [t('Donut'), t('Pie'), t('Confronto'), t('Periodo'), t('Quote')],
+  tags: [t('Donut'), t('Pie'), t('Comparison'), t('Period'), t('Shares')],
   credits: ['Francesco Castaldi'],
   exampleGallery: [{ url: example }],
   thumbnail,

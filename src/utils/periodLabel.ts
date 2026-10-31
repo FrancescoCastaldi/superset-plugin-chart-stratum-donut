@@ -1,9 +1,9 @@
 import { PeriodInfo } from '../types';
-import { detectGranularity, formatDateIt, labelForRange, MonthStyle } from './dates';
+import { detectGranularity, formatDate, labelForRange, MonthStyle } from './dates';
 
 /**
- * Periodo a partire dai limiti restituiti da Superset (from_dttm / to_dttm, epoch in ms, UTC).
- * Il limite superiore e' escluso. Un limite mancante diventa un intervallo aperto.
+ * Period from the bounds returned by Superset (from_dttm / to_dttm, epoch in ms, UTC).
+ * The upper bound is excluded. A missing bound becomes an open interval.
  */
 export function periodFromBounds(
   fromMs: number | null | undefined,
@@ -14,13 +14,13 @@ export function periodFromBounds(
   const hasFrom = typeof fromMs === 'number';
   const hasTo = typeof toMs === 'number';
   if (!hasFrom && !hasTo) {
-    return { raw: null, range: null, granularity: 'all', label: 'Tutto il periodo' };
+    return { raw: null, range: null, granularity: 'all', label: 'Full period' };
   }
   if (!hasFrom) {
-    return { raw: null, range: null, granularity: 'open_end', label: `fino al ${formatDateIt(new Date((toMs as number) - 1))}` };
+    return { raw: null, range: null, granularity: 'open_end', label: `until ${formatDate(new Date((toMs as number) - 1))}` };
   }
   if (!hasTo) {
-    return { raw: null, range: null, granularity: 'open_start', label: `dal ${formatDateIt(new Date(fromMs as number))}` };
+    return { raw: null, range: null, granularity: 'open_start', label: `from ${formatDate(new Date(fromMs as number))}` };
   }
   const range = { start: new Date(fromMs as number), end: new Date(toMs as number) };
   if (range.end.getTime() <= range.start.getTime()) {

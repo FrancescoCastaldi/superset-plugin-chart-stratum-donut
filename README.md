@@ -1,46 +1,68 @@
-# StratumDonut: doppio anello per Apache Superset 6.1.0
+# StratumDonut: double-ring donut for Apache Superset 6.1.0
 
-Chart plugin che confronta due periodi in un unico donut: l'anello esterno è il periodo di riferimento, quello interno il confronto. Ogni fetta mostra valore, quota, variazione in punti di quota e variazione percentuale, con una legenda interattiva.
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Apache Superset](https://img.shields.io/badge/Apache%20Superset-6.1.0-green.svg)](https://superset.apache.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6.svg)](https://www.typescriptlang.org/)
+[![Apache ECharts](https://img.shields.io/badge/Apache%20ECharts-5.x-red.svg)](https://echarts.apache.org/)
 
-Il periodo di confronto arriva dal filtro nativo **PeriodCompare** (vedi `superset-period-compare`), oppure dal preset scelto nel chart (periodo precedente, anno precedente, intervallo personalizzato).
+A chart plugin that compares two periods in a single donut. The outer ring is the reference period and the inner ring is the comparison period. Each slice shows its value, share, change in share points and percentage change, with an interactive legend.
 
-## Funzioni
+The comparison period comes from the native **PeriodCompare** filter (see `superset-period-compare`), or from a preset chosen in the chart (previous period, previous year, custom range).
 
-- **Fette da colonna** (una fetta per valore di una dimensione) oppure **da metriche** (una fetta per metrica, es. riuscite, fallite, incomplete).
-- **Confronto** con più sorgenti: filtro dashboard, preset del chart, nessun confronto. Se il periodo di riferimento è relativo (es. "Last month") il confronto usa uno shift nativo.
-- **Due query** con le stesse colonne e metriche: cambia solo la finestra temporale. Le fette presenti in un solo periodo restano, marcate come nuove o scomparse.
-- **Altro**: fette sotto soglia o oltre le prime N raggruppate in "Altro", con lo stesso gruppo su entrambi gli anelli.
-- **Limite di righe**: se una query è troncata le quote sono approssimate, e il pannello lo segnala. Per il totale reale si attiva "Totale esatto" (solo modalità colonna).
-- **Polarità**: per ogni fetta si sceglie se una variazione positiva è buona, cattiva o neutra (es. fallite: meglio se minori).
-- **Interazioni**: clic su una fetta per il cross-filter della dashboard, clic destro per il drill to detail.
-- **Tema**: testo ed etichette seguono il tema di Superset.
+## 📸 Visual Preview
 
-## Pannello di controllo
+![StratumDonut comparing October 2026 with October 2025](docs/images/stratum_donut_preview.png)
 
-Nessun JSON da scrivere a mano.
+### 🌙 Dark theme
 
-- **Dati**: modalità, metrica o metriche, dimensione, filtri, colonna temporale, sorgente e preset del confronto.
-- **Customize**: periodi ed etichette, anelli (raggio, spessore, distanza, angolo), etichette (contenuto, posizione, soglia), fette (nome, colore, visibilità, polarità, formato, tramite un controllo per fetta), raggruppamento e ordine, legenda, testo centrale, tooltip, delta e formati.
+Text, labels and borders follow the Superset theme.
 
-## Installazione
+![StratumDonut in dark theme](docs/images/stratum_donut_dark.png)
 
-Dalla cartella del plugin, con un checkout di Superset 6.1.0:
+### 🎯 Metrics mode with "lower is better" slices
+
+Each metric becomes a slice. Failed and incomplete bookings are marked as "lower is better", so a decrease is shown as positive.
+
+![StratumDonut with metrics and polarity](docs/images/stratum_donut_metrics.png)
+
+## 🌟 Features
+
+- **Slices from a column** (one slice per dimension value) or **from metrics** (one slice per metric, e.g. successful, failed, incomplete).
+- **Comparison from several sources**: dashboard filter, chart preset, or no comparison. When the reference period is relative (e.g. "Last month") the comparison uses a native shift.
+- **Two queries with the same columns and metrics**: only the time window changes. Slices present in one period only are kept and marked as new or missing.
+- **Other**: slices below a threshold, or beyond the top N, are grouped into "Other", using the same group on both rings.
+- **Row limit**: if a query is truncated, the shares are approximate and the panel says so. Enable "Exact total" (column mode only) for the real total.
+- **Polarity**: for each slice you choose whether a positive change is good, bad or neutral (e.g. failed bookings: lower is better).
+- **Interactions**: click a slice for the dashboard cross-filter, right click for drill to detail.
+- **Theme**: text and labels follow the Superset theme.
+- **Number formats**: values use the en-US format by default (`1,240.5`), and the value format can be changed in the panel.
+
+## 🎛️ Control panel
+
+No JSON to write by hand.
+
+- **Data**: mode, metric or metrics, dimension, filters, time column, comparison source and preset.
+- **Customize**: periods and labels, rings (radius, width, gap, start angle), labels (content, position, threshold), slices (name, color, visibility, polarity, format, through a per-slice control), grouping and order, legend, center text, tooltip, change and formats.
+
+## 🚀 Installation
+
+From the plugin folder, with a checkout of Superset 6.1.0:
 
 ```powershell
-.\install-plugin.ps1 -SupersetPath C:\percorso\superset
+.\install-plugin.ps1 -SupersetPath C:\path\to\superset
 ```
 
-Lo script copia il plugin in `superset-frontend/plugins/`, registra `StratumDonutChartPlugin` in `MainPreset.ts` (idempotente, con backup `.bak`) e aggiunge le dipendenze mancanti in `package.json`. Poi ricompilare il frontend di Superset e riavviare.
+The script copies the plugin into `superset-frontend/plugins/`, registers `StratumDonutChartPlugin` in `MainPreset.ts` (idempotent, with a `.bak` backup) and adds the missing dependencies to `package.json`. Then rebuild the Superset frontend and restart.
 
-## Sviluppo
+## 🛠️ Development
 
 ```powershell
 npm install
-npm run build      # bundle in dist/
-npm test           # test unitari
+npm run build      # bundle into dist/
+npm test           # unit tests
 ```
 
-Per vedere il grafico senza Superset, il dev-studio in `dev-studio/` esegue il codice reale del plugin con scenari di esempio:
+To see the chart without Superset, the dev studio in `dev-studio/` runs the real plugin code with sample scenarios:
 
 ```powershell
 cd dev-studio
@@ -48,15 +70,21 @@ npm install
 npx vite --port 5174
 ```
 
-## Struttura
+The dev studio also has an embed mode that renders only the chart, used to create the images in this README:
 
-- `src/plugin/`: buildQuery (due query), queryPlan (indici delle query), transformProps (dati e stile), controlPanel (pannelli), controls/sliceConfig (controllo per fetta).
-- `src/utils/`: comparison (scelta del confronto), dates e periodLabel (periodi in italiano), merge (unione dei periodi, Altro, rest), model (modello dati), format, style, echartsOption (opzione ECharts), crossFilter.
-- `src/components/`: StratumDonutChart (grafico e interazioni), RichLegend (legenda).
-- `test/`: test unitari su date, confronto, unione, modello, formati, opzione ECharts, pannello e cross-filter.
+```text
+http://127.0.0.1:5174/?scenario=column-basic&embed=1&width=640&height=380
+```
 
-## Limiti noti
+## 📁 Repository structure
 
-- Il drill by non è incluso: il menu contestuale offre solo il drill to detail.
-- Con un periodo troncato le quote dell'altro periodo sono approssimate (vedi avviso).
-- Il collaudo visivo completo nel clone Superset con PeriodCompare non è ancora stato fatto.
+- `src/plugin/`: buildQuery (two queries), queryPlan (query indexes), transformProps (data and style), controlPanel (panels), controls/sliceConfig (per-slice control).
+- `src/utils/`: comparison (choice of the comparison), dates and periodLabel (period labels), merge (joining the periods, Other, rest), model (data model), format, style, echartsOption (ECharts option), crossFilter.
+- `src/components/`: StratumDonutChart (chart and interactions), RichLegend (legend).
+- `test/`: unit tests for dates, comparison, merge, model, formats, ECharts option, control panel and cross-filter.
+
+## ⚠️ Known limitations
+
+- Drill by is not included: the context menu offers drill to detail only.
+- When a period is truncated, the shares of the other period are approximate (see the notice).
+- The full visual check in a Superset clone with PeriodCompare is still pending.

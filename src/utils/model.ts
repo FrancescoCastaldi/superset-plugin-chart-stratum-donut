@@ -3,7 +3,7 @@ import { mergePeriods, MergeOptions, PeriodRow } from './merge';
 import { getTrendPolarity, TrendPolarity } from './trend';
 import { Mode } from './rows';
 
-/** Configurazione di una singola fetta, dal controllo ColumnConfigControl. */
+/** Configuration of a single slice, from the ColumnConfigControl. */
 export interface SliceConfig {
   name?: string;
   hidden?: boolean;
@@ -52,7 +52,7 @@ export interface DonutModel {
 
 const OTHER_COLOR = '#BFBFBF';
 
-/** Converte la configurazione grezza di ColumnConfigControl nella forma usata dal modello. */
+/** Converts the raw ColumnConfigControl configuration into the shape used by the model. */
 export function toSliceConfig(raw: Record<string, any> | undefined | null): Record<string, SliceConfig> {
   const out: Record<string, SliceConfig> = {};
   Object.entries(raw ?? {}).forEach(([key, c]) => {
@@ -69,9 +69,9 @@ export function toSliceConfig(raw: Record<string, any> | undefined | null): Reco
 }
 
 /**
- * Costruisce il modello del donut: filtra le fette nascoste, unisce i periodi,
- * applica nomi, colori e polarita', e rimuove le fette a zero se richiesto.
- * Le fette nascoste escono prima del join, quindi le quote si ricalcolano da sole.
+ * Builds the donut model: filters out hidden slices, merges the periods,
+ * applies names, colors and polarity, and removes zero slices if requested.
+ * Hidden slices are dropped before the join, so the shares recalculate by themselves.
  */
 export function buildModel(input: BuildModelInput): DonutModel {
   const cfg = input.sliceConfig ?? {};

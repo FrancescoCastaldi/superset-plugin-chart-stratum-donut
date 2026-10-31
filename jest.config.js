@@ -6,7 +6,7 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json', diagnostics: false }],
   },
-  // Le funzioni testate sono pure: i moduli @superset-ui sono sostituiti da un double locale.
+  // The tested functions are pure: the @superset-ui modules are replaced by a local double.
   moduleNameMapper: {
     '^@superset-ui/core$': '<rootDir>/test/__mocks__/supersetCoreMock.js',
     '^@superset-ui/chart-controls$': '<rootDir>/test/__mocks__/supersetCoreMock.js',

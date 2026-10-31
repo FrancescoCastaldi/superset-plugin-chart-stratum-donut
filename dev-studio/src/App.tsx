@@ -3,13 +3,16 @@ import StratumDonutChart from '../../src/components/StratumDonutChart';
 import transformProps from '../../src/plugin/transformProps';
 import { SCENARIOS } from './scenarios';
 
-/** Riquadro di sviluppo: esegue il transformProps reale e mostra il grafico. */
+/** Development sandbox: runs the real transformProps and shows the chart. */
 export default function App() {
   const params = new URLSearchParams(window.location.search);
   const initial = SCENARIOS.find(s => s.id === params.get('scenario'))?.id ?? SCENARIOS[0].id;
+  // Embed mode (?embed=1&width=&height=): only the chart, used to export README and gallery images.
+  const embed = params.get('embed') === '1';
+  const height = Number(params.get('height')) || 380;
   const [id, setId] = useState(initial);
-  const [width, setWidth] = useState<number | null>(null);
-  // Selezione simulata: sostituisce il filterState di Superset per il cross-filter.
+  const [width, setWidth] = useState<number | null>(Number(params.get('width')) || null);
+  // Simulated selection: replaces Superset's filterState for the cross-filter.
   const [selected, setSelected] = useState<string[]>([]);
   const scenario = SCENARIOS.find(s => s.id === id)!;
   const stageWidth = width ?? scenario.width ?? 640;
@@ -28,7 +31,7 @@ export default function App() {
   const props = useMemo(() => {
     const chartProps = {
       width: stageWidth,
-      height: 380,
+      height,
       rawFormData: scenario.formData,
       queriesData: scenario.queries,
       filterState: { selectedValues: selected },
@@ -38,7 +41,15 @@ export default function App() {
       theme: scenario.dark ? { colorText: '#e6e8eb', colorBgContainer: '#1d2127' } : { colorText: '#1f2933', colorBgContainer: '#ffffff' },
     };
     return transformProps(chartProps as any);
-  }, [scenario, stageWidth, selected]);
+  }, [scenario, stageWidth, height, selected]);
+
+  if (embed) {
+    return (
+      <div className="stage" style={{ width: stageWidth, border: 'none', margin: 0 }}>
+        <StratumDonutChart {...props} width={stageWidth} height={height} />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -54,7 +65,7 @@ export default function App() {
           </select>
         </label>
         <label>
-          Larghezza{' '}
+          Width{' '}
           <select value={stageWidth} onChange={e => setWidth(Number(e.target.value))}>
             {[360, 480, 640, 900].map(w => (
               <option key={w} value={w}>
@@ -63,25 +74,25 @@ export default function App() {
             ))}
           </select>
         </label>
-        <button onClick={() => setSelected([])}>Pulisci selezione</button>
-        <span>Selezionate: {selected.length ? selected.join(', ') : 'nessuna'}</span>
-        <span>Quota totale riferimento: {props.model.refTotal.toLocaleString('it-IT')}</span>
+        <button onClick={() => setSelected([])}>Clear selection</button>
+        <span>Selected: {selected.length ? selected.join(', ') : 'none'}</span>
+        <span>Reference total: {props.model.refTotal.toLocaleString('en-US')}</span>
       </div>
 
       <div className="stage" style={{ width: stageWidth + 2 }}>
-        <StratumDonutChart {...props} width={stageWidth} height={380} />
+        <StratumDonutChart {...props} width={stageWidth} height={height} />
       </div>
 
       <table>
         <thead>
           <tr>
-            <th>Fetta</th>
-            <th>Riferimento</th>
-            <th>Confronto</th>
-            <th>Quota rif.</th>
-            <th>Δ quota (pt)</th>
+            <th>Slice</th>
+            <th>Reference</th>
+            <th>Comparison</th>
+            <th>Ref. share</th>
+            <th>Δ share (pt)</th>
             <th>Δ %</th>
-            <th>Stato</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -91,13 +102,13 @@ export default function App() {
                 <span style={{ display: 'inline-block', width: 10, height: 10, background: s.color, marginRight: 6 }} />
                 {s.label}
               </td>
-              <td>{s.refValue.toLocaleString('it-IT')}</td>
-              <td>{s.cmpValue === null ? '—' : s.cmpValue.toLocaleString('it-IT')}</td>
+              <td>{s.refValue.toLocaleString('en-US')}</td>
+              <td>{s.cmpValue === null ? '-' : s.cmpValue.toLocaleString('en-US')}</td>
               <td>{(s.refShare * 100).toFixed(1)}%</td>
-              <td>{s.deltaPts === null ? '—' : s.deltaPts.toFixed(1)}</td>
-              <td>{s.deltaPct === null ? '—' : s.deltaPct.toFixed(1)}</td>
+              <td>{s.deltaPts === null ? '-' : s.deltaPts.toFixed(1)}</td>
+              <td>{s.deltaPct === null ? '-' : s.deltaPct.toFixed(1)}</td>
               <td>
-                {s.isNew ? 'nuova' : s.isGone ? 'scomparsa' : s.unknown !== 'none' ? 'sconosciuta' : s.isOther ? 'altro' : ''}
+                {s.isNew ? 'new' : s.isGone ? 'missing' : s.unknown !== 'none' ? 'unknown' : s.isOther ? 'other' : ''}
                 {s.sentiment !== 'neutral' ? ` · ${s.sentiment}` : ''}
               </td>
             </tr>
