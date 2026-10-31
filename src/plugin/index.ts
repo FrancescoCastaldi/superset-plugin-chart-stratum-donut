@@ -8,7 +8,7 @@ import example from '../images/example.png';
 const t = (str: string) => str;
 
 const metadata = new ChartMetadata({
-  name: t('Donut Compare: doppio anello'),
+  name: t('StratumDonut: doppio anello'),
   description: t(
     'Donut a doppio anello per confrontare due periodi: quote, variazioni e legenda ricca. Il periodo di confronto arriva dal filtro PeriodCompare o dal preset del chart.',
   ),
@@ -20,12 +20,12 @@ const metadata = new ChartMetadata({
   thumbnail,
 });
 
-export default class DonutCompareChartPlugin extends ChartPlugin {
+export default class StratumDonutChartPlugin extends ChartPlugin {
   constructor() {
     super({
       buildQuery: buildQuery as any,
       controlPanel,
-      loadChart: () => import('../components/DonutCompareChart'),
+      loadChart: () => import('../components/StratumDonutChart'),
       metadata,
       transformProps: transformProps as any,
     });

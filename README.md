@@ -1,4 +1,4 @@
-# Donut Compare: doppio anello per Apache Superset 6.1.0
+# StratumDonut: doppio anello per Apache Superset 6.1.0
 
 Chart plugin che confronta due periodi in un unico donut: l'anello esterno è il periodo di riferimento, quello interno il confronto. Ogni fetta mostra valore, quota, variazione in punti di quota e variazione percentuale, con una legenda interattiva.
 
@@ -30,7 +30,7 @@ Dalla cartella del plugin, con un checkout di Superset 6.1.0:
 .\install-plugin.ps1 -SupersetPath C:\percorso\superset
 ```
 
-Lo script copia il plugin in `superset-frontend/plugins/`, registra `DonutCompareChartPlugin` in `MainPreset.ts` (idempotente, con backup `.bak`) e aggiunge le dipendenze mancanti in `package.json`. Poi ricompilare il frontend di Superset e riavviare.
+Lo script copia il plugin in `superset-frontend/plugins/`, registra `StratumDonutChartPlugin` in `MainPreset.ts` (idempotente, con backup `.bak`) e aggiunge le dipendenze mancanti in `package.json`. Poi ricompilare il frontend di Superset e riavviare.
 
 ## Sviluppo
 
@@ -52,7 +52,7 @@ npx vite --port 5174
 
 - `src/plugin/`: buildQuery (due query), queryPlan (indici delle query), transformProps (dati e stile), controlPanel (pannelli), controls/sliceConfig (controllo per fetta).
 - `src/utils/`: comparison (scelta del confronto), dates e periodLabel (periodi in italiano), merge (unione dei periodi, Altro, rest), model (modello dati), format, style, echartsOption (opzione ECharts), crossFilter.
-- `src/components/`: DonutCompareChart (grafico e interazioni), RichLegend (legenda).
+- `src/components/`: StratumDonutChart (grafico e interazioni), RichLegend (legenda).
 - `test/`: test unitari su date, confronto, unione, modello, formati, opzione ECharts, pannello e cross-filter.
 
 ## Limiti noti

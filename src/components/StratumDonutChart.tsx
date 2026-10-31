@@ -65,7 +65,7 @@ function EchartsDonut({
 }
 
 /** Componente principale: intestazione del periodo, donut, legenda, interazioni e avvisi. */
-export default function DonutCompareChart(props: TransformedProps) {
+export default function StratumDonutChart(props: TransformedProps) {
   const { width, height, model, periods, notices, comparisonActive, style, interaction } = props;
   const [hovered, setHovered] = useState<string | null>(null);
   const [hidden, setHidden] = useState<Set<string>>(new Set());

@@ -1,21 +1,21 @@
 <#
 .SYNOPSIS
-    Automated installer script for Donut Compare Chart Plugin in Apache Superset.
+    Automated installer script for StratumDonut Chart Plugin in Apache Superset.
 .DESCRIPTION
-    Installs and registers the Donut Compare Chart Plugin into an Apache Superset repository:
+    Installs and registers the StratumDonut Chart Plugin into an Apache Superset repository:
     1. Locates and validates the Apache Superset root directory.
     2. Builds the plugin (TypeScript compilation) if npm is available.
-    3. Copies plugin files into superset-frontend/plugins/superset-plugin-chart-donut-compare.
+    3. Copies plugin files into superset-frontend/plugins/superset-plugin-chart-stratum-donut.
     4. Safely parses and updates MainPreset.ts with backup and idempotency:
-       - import { DonutCompareChartPlugin } from '../../../plugins/superset-plugin-chart-donut-compare/src';
-       - new DonutCompareChartPlugin().configure({ key: 'donut_compare' }),
+       - import { StratumDonutChartPlugin } from '../../../plugins/superset-plugin-chart-stratum-donut/src';
+       - new StratumDonutChartPlugin().configure({ key: 'stratum_donut' }),
        Legacy registration variants (`.register()` lines, odd indentation, duplicates)
        are normalized to the canonical form instead of adding new lines.
     5. Cleans stale Webpack/Babel cache.
 .PARAMETER SupersetPath
     Path to the Apache Superset root directory (a checkout of apache/superset 6.1.0).
 .PARAMETER PluginPath
-    Path to the Donut Compare plugin root directory (default: script root).
+    Path to the StratumDonut plugin root directory (default: script root).
 .PARAMETER CleanReinstall
     Removes existing plugin folder completely and reinstalls from scratch.
 .PARAMETER RebuildFrontend
@@ -50,7 +50,7 @@ function Write-Color([string]$text, [string]$color = "White") {
 }
 
 Write-Color "================================================================" "Cyan"
-Write-Color "   Donut Compare - Apache Superset Plugin Installer             " "Cyan"
+Write-Color "   StratumDonut - Apache Superset Plugin Installer             " "Cyan"
 Write-Color "   Donut a doppio anello: riferimento e confronto               " "Cyan"
 Write-Color "================================================================" "Cyan"
 Write-Color ""
@@ -202,7 +202,7 @@ if (-not (Test-Path $PluginsTargetRoot)) {
     New-Item -ItemType Directory -Path $PluginsTargetRoot -Force | Out-Null
 }
 
-$DestPluginDir = Join-Path $PluginsTargetRoot "superset-plugin-chart-donut-compare"
+$DestPluginDir = Join-Path $PluginsTargetRoot "superset-plugin-chart-stratum-donut"
 if (Test-Path $DestPluginDir) {
     Write-Color "[INFO] Pulizia versione precedente in '$DestPluginDir'..." "Yellow"
     try {
@@ -271,8 +271,8 @@ if (-not (Test-Path $BackupFile)) {
 $RawContent = [System.IO.File]::ReadAllText($PresetFile, [System.Text.Encoding]::UTF8)
 $NL = if ($RawContent.Contains("`r`n")) { "`r`n" } else { "`n" }
 
-$TargetImport = "import { DonutCompareChartPlugin } from '../../../plugins/superset-plugin-chart-donut-compare/src';"
-$TargetRegister = "        new DonutCompareChartPlugin().configure({ key: 'donut_compare' }),"
+$TargetImport = "import { StratumDonutChartPlugin } from '../../../plugins/superset-plugin-chart-stratum-donut/src';"
+$TargetRegister = "        new StratumDonutChartPlugin().configure({ key: 'stratum_donut' }),"
 
 # Verifica idempotenza sulla FORMA CANONICA (riga-esatta): le varianti legacy
 # (riga con `.register()`, indentazioni anomale, duplicati) non contano come
@@ -280,8 +280,8 @@ $TargetRegister = "        new DonutCompareChartPlugin().configure({ key: 'donut
 $PresetLineList = [System.Collections.Generic.List[string]]($RawContent -split "\r?\n")
 $hasExactImport = ($PresetLineList -contains $TargetImport)
 $hasExactRegister = ($PresetLineList -contains $TargetRegister)
-$importCount = ([regex]::Matches($RawContent, "from\s*['`"][^'`"]*superset-plugin-chart-donut-compare")).Count
-$registerCount = ([regex]::Matches($RawContent, "new\s+DonutCompareChartPlugin")).Count
+$importCount = ([regex]::Matches($RawContent, "from\s*['`"][^'`"]*superset-plugin-chart-stratum-donut")).Count
+$registerCount = ([regex]::Matches($RawContent, "new\s+StratumDonutChartPlugin")).Count
 
 if (-not $CleanReinstall -and $hasExactImport -and $hasExactRegister -and ($importCount -eq 1) -and ($registerCount -eq 1)) {
     Write-Color "[INFO] MainPreset.ts e' gia' registrato correttamente (idempotente - nessuna modifica necessaria)." "Green"
@@ -294,7 +294,7 @@ if (-not $CleanReinstall -and $hasExactImport -and $hasExactRegister -and ($impo
 
     for ($i = 0; $i -lt $lines.Count; $i++) {
         $line = $lines[$i]
-        if ($line -match "from\s*['`"][^'`"]*superset-plugin-chart-donut-compare") {
+        if ($line -match "from\s*['`"][^'`"]*superset-plugin-chart-stratum-donut") {
             continue
         }
         if ($line.Trim().StartsWith("import ")) {
@@ -317,7 +317,7 @@ if (-not $CleanReinstall -and $hasExactImport -and $hasExactRegister -and ($impo
 
     for ($i = 0; $i -lt $regLines.Count; $i++) {
         $line = $regLines[$i]
-        if ($line -match 'new\s+DonutCompareChartPlugin') {
+        if ($line -match 'new\s+StratumDonutChartPlugin') {
             continue
         }
         $finalLines.Add($line)
@@ -446,8 +446,8 @@ if ($RebuildFrontend) {
 }
 
 Write-Color "================================================================" "Green"
-Write-Color "   Installazione Plugin Donut Compare completata con successo! " "Green"
+Write-Color "   Installazione Plugin StratumDonut completata con successo! " "Green"
 Write-Color "================================================================" "Green"
-Write-Color "Il plugin 'donut_compare' e' ora registrato nel frontend Superset." "White"
+Write-Color "Il plugin 'stratum_donut' e' ora registrato nel frontend Superset." "White"
 Write-Color "Riavvia il server o visualizza la dashboard per utilizzarlo." "White"
 Write-Color ""

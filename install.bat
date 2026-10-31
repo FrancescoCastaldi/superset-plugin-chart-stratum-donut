@@ -8,7 +8,7 @@ set "PLUGIN_DIR=%~dp0"
 if "%PLUGIN_DIR:~-1%"=="\" set "PLUGIN_DIR=%PLUGIN_DIR:~0,-1%"
 
 echo ==============================================================================
-echo   INSTALLAZIONE / AGGIORNAMENTO PLUGIN SUPERSET: Donut Compare
+echo   INSTALLAZIONE / AGGIORNAMENTO PLUGIN SUPERSET: StratumDonut
 echo   Cartella sorgente: "%PLUGIN_DIR%"
 echo ==============================================================================
 echo.
@@ -19,10 +19,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%PLUGIN_DIR%\install-plugin
 set "RC=%ERRORLEVEL%"
 if %RC% neq 0 (
     echo.
-    echo [ERRORE] L'installazione di Donut Compare ha riscontrato un errore ^(Codice: %RC%^).
+    echo [ERRORE] L'installazione di StratumDonut ha riscontrato un errore ^(Codice: %RC%^).
 ) else (
     echo.
-    echo [OK] Donut Compare aggiornato e registrato con successo
+    echo [OK] StratumDonut aggiornato e registrato con successo
 )
 
 echo.

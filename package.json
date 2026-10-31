@@ -1,7 +1,7 @@
 {
-  "name": "superset-plugin-chart-donut-compare",
+  "name": "superset-plugin-chart-stratum-donut",
   "version": "0.1.0",
-  "description": "Donut Compare: donut a doppio anello per Apache Superset 6.1.0, periodo di riferimento (esterno) e di confronto (interno), con quote, delta e legenda ricca. Legge le date dal filtro nativo PeriodCompare.",
+  "description": "StratumDonut: donut a doppio anello per Apache Superset 6.1.0, periodo di riferimento (esterno) e di confronto (interno), con quote, delta e legenda ricca. Legge le date dal filtro nativo PeriodCompare.",
   "main": "dist/index.esm.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",

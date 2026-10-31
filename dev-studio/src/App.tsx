@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import DonutCompareChart from '../../src/components/DonutCompareChart';
+import StratumDonutChart from '../../src/components/StratumDonutChart';
 import transformProps from '../../src/plugin/transformProps';
 import { SCENARIOS } from './scenarios';
 
@@ -69,7 +69,7 @@ export default function App() {
       </div>
 
       <div className="stage" style={{ width: stageWidth + 2 }}>
-        <DonutCompareChart {...props} width={stageWidth} height={380} />
+        <StratumDonutChart {...props} width={stageWidth} height={380} />
       </div>
 
       <table>
