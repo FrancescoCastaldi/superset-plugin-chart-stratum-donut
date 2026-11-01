@@ -11,7 +11,9 @@ The comparison period comes from the native **PeriodCompare** filter (see `super
 
 ## 📸 Visual Preview
 
-![StratumDonut comparing October 2026 with October 2025](docs/images/stratum_donut_preview.png)
+![StratumDonut comparing January-May 2005 with January-May 2004](docs/images/stratum_donut_preview.png)
+
+*Sales by deal size on Superset's example sales data, January to May 2005 against the same months of 2004. Screenshots are real charts in Chrome.*
 
 ### 🌙 Dark theme
 
@@ -21,9 +23,9 @@ Text, labels and borders follow the Superset theme.
 
 ### 🎯 Metrics mode with "lower is better" slices
 
-Each metric becomes a slice. Failed and incomplete bookings are marked as "lower is better", so a decrease is shown as positive.
+Each metric becomes a slice. Slices can be marked as "lower is better", so that a decrease is shown as positive.
 
-![StratumDonut with metrics and polarity](docs/images/stratum_donut_metrics.png)
+![StratumDonut with metrics](docs/images/stratum_donut_metrics.png)
 
 ## 🌟 Features
 

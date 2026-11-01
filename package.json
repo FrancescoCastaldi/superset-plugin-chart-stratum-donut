@@ -1,6 +1,6 @@
 {
   "name": "superset-plugin-chart-stratum-donut",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "StratumDonut: double-ring donut for Apache Superset 6.1.0, reference period (outer ring) and comparison period (inner ring), with shares, deltas and a rich legend. Reads the dates from the native PeriodCompare filter.",
   "main": "dist/index.esm.js",
   "module": "dist/index.esm.js",
