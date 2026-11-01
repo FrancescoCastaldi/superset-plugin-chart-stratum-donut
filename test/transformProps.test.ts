@@ -161,3 +161,18 @@ describe('transformProps: metrics mode', () => {
     expect(t.model.slices.some(s => s.key === 'COUNT(*)')).toBe(false);
   });
 });
+
+describe('transformProps: interaction callbacks', () => {
+  test('takes setDataMask and onContextMenu from the hooks Superset passes', () => {
+    const setDataMask = jest.fn();
+    const onContextMenu = jest.fn();
+    const t = transformProps({ ...props(), hooks: { setDataMask, onContextMenu } });
+    expect(t.interaction.setDataMask).toBe(setDataMask);
+    expect(t.interaction.onContextMenu).toBe(onContextMenu);
+  });
+
+  test('still accepts the callbacks at the top level', () => {
+    const setDataMask = jest.fn();
+    expect(transformProps({ ...props(), setDataMask }).interaction.setDataMask).toBe(setDataMask);
+  });
+});

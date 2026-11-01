@@ -174,8 +174,9 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
       column: mode === 'column' && groupby ? groupby : null,
       selectedKeys: ((chartProps as any).filterState?.selectedValues ?? []) as string[],
       emit: fd.emit_filter !== false,
-      setDataMask: (chartProps as any).setDataMask,
-      onContextMenu: (chartProps as any).onContextMenu,
+      // Superset hands the callbacks over in `hooks`; the top level is kept for callers that pass them directly
+      setDataMask: (chartProps as any).hooks?.setDataMask ?? (chartProps as any).setDataMask,
+      onContextMenu: (chartProps as any).hooks?.onContextMenu ?? (chartProps as any).onContextMenu,
     },
   };
 }

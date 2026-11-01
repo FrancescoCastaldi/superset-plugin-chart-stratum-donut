@@ -2,6 +2,15 @@
 
 Keep a Changelog 1.1.0 format, SemVer versioning.
 
+## [0.1.3] - 2026-11-01
+
+### Fixed
+- **Cross-filtering never worked on a dashboard**: the chart looked for `setDataMask` and `onContextMenu` at the top level of its props, but Superset passes them in `hooks`, so clicking a slice did nothing. They are read from `hooks` now (the top level is still accepted).
+- 2 new tests (132 in total).
+
+### Changed
+- README: how to turn cross-filtering on.
+
 ## [0.1.2] - 2026-11-01
 
 ### Changed
