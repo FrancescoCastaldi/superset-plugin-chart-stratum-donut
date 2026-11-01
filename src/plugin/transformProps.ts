@@ -5,6 +5,7 @@ import { buildModel, DonutModel, toSliceConfig } from '../utils/model';
 import { columnNameOf, isTruncated, metricLabelOf, readRows } from '../utils/rows';
 import { parseNumber } from '../utils/format';
 import { periodFromBounds } from '../utils/periodLabel';
+import { readDashboardPeriods } from '../utils/dashboardPeriods';
 import { paletteColor } from '../utils/palette';
 import { PeriodInfo, SliceSort } from '../types';
 import { MonthStyle } from '../utils/dates';
@@ -133,8 +134,13 @@ export default function transformProps(chartProps: ChartProps): TransformedProps
   const monthStyle = monthStyleOf(fd);
   const refInfo = periodFromBounds(refResult.from_dttm, refResult.to_dttm, 'Reference', monthStyle);
   const cmpInfo = cmpResult ? periodFromBounds(cmpResult.from_dttm, cmpResult.to_dttm, 'Comparison', monthStyle) : null;
-  const refLabel = fd.dc_ref_label || refInfo.label;
-  const cmpLabel = cmpInfo ? fd.dc_cmp_label || cmpInfo.label : null;
+  // A dashboard filter such as the Calendar Filter sends its periods already written (`1-31 May 2005`)
+  const dashboardPeriods = readDashboardPeriods(fd.extra_form_data);
+  const refLabel =
+    fd.dc_ref_label || (fd.extra_form_data?.time_range ? dashboardPeriods.referenceText : undefined) || refInfo.label;
+  const cmpLabel = cmpInfo
+    ? fd.dc_cmp_label || (comparison.source === 'dashboard' ? dashboardPeriods.comparisonText : undefined) || cmpInfo.label
+    : null;
 
   const notices: Notice[] = [];
   if (!comparison.active && comparison.reason !== 'disabled') {

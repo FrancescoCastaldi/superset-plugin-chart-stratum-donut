@@ -51,6 +51,36 @@ describe('transformProps: comparison from the dashboard filter', () => {
     expect(t.comparisonType).toBe('values');
   });
 
+  test('periods written by the dashboard filter replace the raw bounds in the header', () => {
+    const t = transformProps(
+      props({
+        extra_form_data: {
+          time_range: '2026-10-01 : 2026-11-01',
+          time_compare: ['2025-10-01 : 2025-11-01'],
+          comparison_type: 'values',
+          custom_form_data: [
+            { period_labels: { reference: 'Current period', comparison: 'Comparison period' }, period_text: { reference: '1-31 Oct 2026', comparison: '1-31 Oct 2025' } },
+          ],
+        },
+      }),
+    );
+    expect(t.periods.header).toBe('1-31 Oct 2026 vs 1-31 Oct 2025');
+  });
+
+  test('a label typed in the control panel still wins over the dashboard text', () => {
+    const t = transformProps(
+      props({
+        dc_ref_label: 'This year',
+        extra_form_data: {
+          time_range: '2026-10-01 : 2026-11-01',
+          time_compare: ['2025-10-01 : 2025-11-01'],
+          custom_form_data: [{ period_text: { reference: '1-31 Oct 2026', comparison: '1-31 Oct 2025' } }],
+        },
+      }),
+    );
+    expect(t.periods.header).toBe('This year vs 1-31 Oct 2025');
+  });
+
   test('slices merged: Shipped with change, Cancelled new', () => {
     const t = transformProps(props());
     const shipped = t.model.slices.find(s => s.key === 'Shipped')!;

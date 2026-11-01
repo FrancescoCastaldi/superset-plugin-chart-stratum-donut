@@ -2,6 +2,12 @@
 
 Keep a Changelog 1.1.0 format, SemVer versioning.
 
+## [0.1.1] - 2026-11-01
+
+### Added
+- **Periods named as the dashboard filter writes them**: with a dashboard filter such as the Calendar Filter the header uses the ranges the filter sends (`1-31 May 2005 vs 31 Mar - 30 Apr 2005`, in its language) instead of the raw bounds. Labels typed in the control panel win.
+- 2 new tests (130 in total).
+
 ## [0.1.0] - 2026-10-31
 
 ### Added
