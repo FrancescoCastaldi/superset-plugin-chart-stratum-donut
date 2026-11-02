@@ -14,7 +14,7 @@ const metadata = new ChartMetadata({
   ),
   behaviors: [Behavior.InteractiveChart],
   category: t('Part of a Whole'),
-  tags: [t('Donut'), t('Pie'), t('Comparison'), t('Period'), t('Shares')],
+  tags: [t('Stratum'), t('Donut'), t('Pie'), t('Comparison'), t('Period'), t('Shares')],
   credits: ['Francesco Castaldi'],
   exampleGallery: [{ url: example }],
   thumbnail,
