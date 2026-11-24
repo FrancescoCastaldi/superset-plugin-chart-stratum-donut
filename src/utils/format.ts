@@ -1,6 +1,6 @@
 import { TrendDirection } from '../types';
 
-export const DEFAULT_LOCALE = 'en-US';
+export const DEFAULT_LOCALE = 'it-IT';
 const DASH = '-';
 
 /** Number from an SQL value: accepts number, bigint and strings (also with a decimal comma). */

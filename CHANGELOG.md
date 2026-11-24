@@ -2,6 +2,11 @@
 
 Keep a Changelog 1.1.0 format, SemVer versioning.
 
+## [0.2.0] - 2026-11-24
+
+### Changed
+- **Numbers in Italian format by default.** Values, shares and changes use the Italian separators (`1.240`, `82,0%`, `+4,1%`). The separators of the English locale are still available through the locale of the formatting helpers.
+
 ## [0.1.3] - 2026-11-01
 
 ### Fixed

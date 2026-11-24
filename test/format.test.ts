@@ -1,21 +1,21 @@
 import { formatDeltaPct, formatNumber, formatPercent, formatPts, formatSliceValue, trendArrow } from '../src/utils/format';
 import { periodFromBounds } from '../src/utils/periodLabel';
 
-describe('formats (en-US)', () => {
+describe('formats (it-IT)', () => {
   test('numbers with thousands separator', () => {
-    expect(formatNumber(1240)).toBe('1,240');
-    expect(formatNumber(1234.567, 1)).toBe('1,234.6');
+    expect(formatNumber(1240)).toBe('1.240');
+    expect(formatNumber(1234.567, 1)).toBe('1.234,6');
     expect(formatNumber(null)).toBe('-');
   });
 
   test('shares and changes', () => {
-    expect(formatPercent(0.82, 1)).toBe('82.0%');
-    expect(formatDeltaPct(4.1, 1)).toBe('+4.1%');
-    expect(formatDeltaPct(-2, 1)).toBe('-2.0%');
+    expect(formatPercent(0.82, 1)).toBe('82,0%');
+    expect(formatDeltaPct(4.1, 1)).toBe('+4,1%');
+    expect(formatDeltaPct(-2, 1)).toBe('-2,0%');
     expect(formatDeltaPct(null)).toBe('n/a');
-    expect(formatPts(-2, 1)).toBe('-2.0 pt');
-    expect(formatPts(4.14, 1)).toBe('+4.1 pt');
-    expect(formatPts(-0.04, 1)).toBe('0.0 pt');
+    expect(formatPts(-2, 1)).toBe('-2,0 pt');
+    expect(formatPts(4.14, 1)).toBe('+4,1 pt');
+    expect(formatPts(-0.04, 1)).toBe('0,0 pt');
   });
 
   test('arrows for trend', () => {
@@ -25,9 +25,9 @@ describe('formats (en-US)', () => {
   });
 
   test('value according to the choice: value, percentage, both', () => {
-    expect(formatSliceValue(1240, 0.82, { display: 'value' })).toBe('1,240');
-    expect(formatSliceValue(1240, 0.82, { display: 'percent' })).toBe('82.0%');
-    expect(formatSliceValue(1240, 0.82, { display: 'value_percent' })).toBe('1,240 · 82.0%');
+    expect(formatSliceValue(1240, 0.82, { display: 'value' })).toBe('1.240');
+    expect(formatSliceValue(1240, 0.82, { display: 'percent' })).toBe('82,0%');
+    expect(formatSliceValue(1240, 0.82, { display: 'value_percent' })).toBe('1.240 · 82,0%');
   });
 
   test('external formatter (e.g. Superset d3) takes precedence', () => {

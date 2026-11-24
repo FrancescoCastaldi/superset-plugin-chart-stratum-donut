@@ -67,13 +67,13 @@ describe('text and tooltip', () => {
 
   test('label: name and percentage', () => {
     const s = model.slices.find(x => x.key === 'Successful')!;
-    expect(labelText(s, readStyle({}), true)).toBe('Successful\n80.0%');
+    expect(labelText(s, readStyle({}), true)).toBe('Successful\n80,0%');
   });
 
   test('label: percentage with point change and arrow', () => {
     const s = model.slices.find(x => x.key === 'Successful')!;
     const text = labelText(s, readStyle({ dc_label_content: 'percent_delta' }), true);
-    expect(text).toBe('80.0% ▲ +20.0 pt');
+    expect(text).toBe('80,0% ▲ +20,0 pt');
   });
 
   test('tooltip: values, shares and chosen deltas, names escaped', () => {
@@ -81,12 +81,12 @@ describe('text and tooltip', () => {
     const html = tooltipHtml(s, readStyle({}), { refLabel: 'Oct 2026', cmpLabel: 'Oct 2025' }, true);
     expect(html).toContain('Oct 2026: 80');
     expect(html).toContain('Oct 2025: 60');
-    expect(html).toContain('Change: +33.3%');
-    expect(html).toContain('Share change: +20.0 pt');
+    expect(html).toContain('Change: +33,3%');
+    expect(html).toContain('Share change: +20,0 pt');
   });
 
   test('center text with the change on the total', () => {
-    expect(centerText(model, readStyle({}))).toBe('Total\n100\n0.0%');
+    expect(centerText(model, readStyle({}))).toBe('Total\n100\n0,0%');
     expect(centerText(model, readStyle({ dc_center_content: 'none' }))).toBeNull();
   });
 });
